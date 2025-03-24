@@ -6,7 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/j3dcore-ogl.dll"/>
 	<classpathentry kind="lib" path="lib/java3d-core.jar"/>
 	<classpathentry kind="lib" path="lib/java3d-examples.jar"/>
 	<classpathentry kind="lib" path="lib/java3d-utils.jar"/>
