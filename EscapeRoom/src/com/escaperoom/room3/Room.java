@@ -5,6 +5,10 @@ import com.sun.j3d.loaders.Scene;
 import javax.media.j3d.*;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import javax.vecmath.*;
+
+import org.jogamp.java3d.BranchGroup;
+import org.jogamp.java3d.TransformGroup;
+
 import java.io.FileReader;
 
 public class Room {
