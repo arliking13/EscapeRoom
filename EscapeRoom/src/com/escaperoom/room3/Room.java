@@ -5,6 +5,13 @@ import com.sun.j3d.loaders.Scene;
 import javax.media.j3d.*;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import javax.vecmath.*;
+
+import org.jogamp.java3d.BoundingSphere;
+import org.jogamp.java3d.BranchGroup;
+import org.jogamp.java3d.DirectionalLight;
+import org.jogamp.java3d.TransformGroup;
+import org.jogamp.vecmath.Color3f;
+
 import java.io.FileReader;
 
 public class Room {
@@ -18,7 +25,7 @@ public class Room {
         Scene modelScene = null;
 
         try {
-            modelScene = loader.load(new FileReader("room.obj"));
+            modelScene = loader.load(new FileReader("room3.obj"));
         } catch (Exception e) {
             e.printStackTrace();
         }
