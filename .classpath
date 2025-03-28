@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+			<attribute name="add-exports" value="java.desktop/sun.java2d=ALL-UNNAMED:java.desktop/sun.awt=ALL-UNNAMED:java.base/java.lang=ALL-UNNAMED"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="EscapeRoom/src"/>
 	<classpathentry kind="lib" path="EscapeRoom/lib/java3d-core.jar"/>
 	<classpathentry kind="lib" path="EscapeRoom/lib/java3d-examples.jar"/>
