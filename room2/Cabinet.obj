@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Cabinet.mtl
-o Cabinet
+# Cabinet
 v -0.069160 1.671795 -3.966103
 v -0.051564 1.938149 -3.983700
 v -0.069160 1.671795 -4.830926
