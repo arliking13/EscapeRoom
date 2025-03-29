@@ -36,27 +36,29 @@ public class Main {
     
     private static void customizeTextures() {
         // Customize textures for objects here
-        LoadObject.setObjectTexture("room3", "rust_walls.jpg");
-        LoadObject.setObjectTexture("ChairOld", "wood_planks.jpg");
-        LoadObject.setObjectTexture("Desk", "wood.jpg");
-        LoadObject.setObjectTexture("Locker", "metal.jpg");
-        LoadObject.setObjectTexture("Door", "wood_door.jpg");
+    	LoadObject.setObjectTexture("Baseboard", "Door_Wood_Dif.jpg");
+    	LoadObject.setObjectTexture("Ceiling_lamp", "Door_Wood_Dif.jpg");
+    	LoadObject.setObjectTexture("ChairOld", "wood_planks.jpg");
+    	LoadObject.setObjectTexture("Cornice", "wood_planks.jpg");
+    	LoadObject.setObjectTexture("Cornice", "wood_planks.jpg");
+    	LoadObject.setObjectTexture("Cross_left", "Door_Wood_Dif.jpg");
+    	LoadObject.setObjectTexture("Cross_middle", "Door_Wood_Dif.jpg");
+    	LoadObject.setObjectTexture("Cross_right", "Door_Wood_Dif.jpg");
+    	LoadObject.setObjectTexture("Desk", "wood.jpg");
+    	LoadObject.setObjectTexture("Door", "wood_door.jpg");
         LoadObject.setObjectTexture("Escape_door", "metal_door.jpg");
-        LoadObject.setObjectTexture("Window_Casement_Frame", "window_frame.jpg");
-        LoadObject.setObjectTexture("Baseboard", "wood_trim.jpg");
-        LoadObject.setObjectTexture("Wall_light_left", "light_fixture.jpg");
-        LoadObject.setObjectTexture("Wall_light_right", "light_fixture.jpg");
-        LoadObject.setObjectTexture("Calling_lamp", "lamp.jpg");
-        LoadObject.setObjectTexture("Paper", "paper.jpg");
-        LoadObject.setObjectTexture("SwitchMain", "switch.jpg");
-        LoadObject.setObjectTexture("SwitchHandle", "metal.jpg");
         LoadObject.setObjectTexture("KeypadDoorLock", "keypad.jpg");
+        LoadObject.setObjectTexture("Locker", "metal.jpg");
         LoadObject.setObjectTexture("Lockers_door", "metal.jpg");
-        LoadObject.setObjectTexture("Cross_left", "Door_Wood_Dif.jpg");
-        LoadObject.setObjectTexture("Cross_middle", "Door_Wood_Dif.jpg");
-        LoadObject.setObjectTexture("Cross_right", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("Paper", "paper.jpg");
+        LoadObject.setObjectTexture("room3", "rust_walls.jpg");
+        LoadObject.setObjectTexture("SwitchHandle", "metal.jpg");
+        LoadObject.setObjectTexture("SwitchMain", "switch.jpg");
         LoadObject.setObjectTexture("The_leftmost_cross", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("The_rightmost_cross", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("Wall_light_left", "light_fixture.jpg");
+        LoadObject.setObjectTexture("Wall_light_right", "light_fixture.jpg");
+        LoadObject.setObjectTexture("Window_Casement_Frame", "window_frame.jpg");
     }
     
     private static void configureViewingPlatform(SimpleUniverse universe) {
@@ -102,6 +104,8 @@ public class Main {
         
         // Wall elements
         scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
+        scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
+        scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 1), 1.0));
         scene.addChild(creator.createObject("Wall_light_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3, 1.8, 0), 0.7));
         scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3, 1.8, 0), 0.7));
         scene.addChild(creator.createObject("Calling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 2, -3), 0.5));
