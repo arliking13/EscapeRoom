@@ -1,74 +1,45 @@
 package com.escaperoom.room3;
 
 import org.jogamp.java3d.*;
-import org.jogamp.vecmath.*;
-import java.io.File;
+import org.jogamp.vecmath.AxisAngle4d;
+import org.jogamp.vecmath.Vector3d;
 
 public class CreateObjects {
-    private BranchGroup sceneRoot;
-
+    private BranchGroup sceneBG = new BranchGroup();
+    
     public CreateObjects() {
-        sceneRoot = new BranchGroup();
-        sceneRoot.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
-        
-        // Add lighting
-        addBasicLighting();
-        
-        // Try loading the object with proper path handling
-        String objPath = getResourcePath("assets/room3/ChairOld.obj");
-        System.out.println("Attempting to load from: " + objPath);
-        
-        TransformGroup objGroup = createObjectGroup(objPath);
-        sceneRoot.addChild(objGroup);
+        sceneBG.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
+        sceneBG.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
     }
 
-    private String getResourcePath(String relativePath) {
-        // Try multiple possible locations
-        String[] possiblePaths = {
-            relativePath,
-            "src/main/resources/" + relativePath,
-            "EscapeRoom/" + relativePath,
-            System.getProperty("user.dir") + "/" + relativePath
-        };
+    public BranchGroup createScene() {
+        // Add chair to the scene
+        sceneBG.addChild(createObject("ChairOld", 
+            new AxisAngle4d(0, 1, 0, 0), // No rotation
+            new Vector3d(0.0, -0.5, 0.0), // Position
+            0.5)); // Scale
         
-        for (String path : possiblePaths) {
-            File file = new File(path);
-            if (file.exists()) {
-                return file.getAbsolutePath();
-            }
-            System.out.println("Not found: " + file.getAbsolutePath());
+        return sceneBG;
+    }
+
+    private TransformGroup createObject(String name, AxisAngle4d rotation, Vector3d translation, double scale) {
+        Transform3D transform = new Transform3D();
+        transform.set(rotation);
+        transform.setScale(scale);
+        transform.setTranslation(translation);
+
+        TransformGroup objTG = new TransformGroup(transform);
+        objTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        objTG.setName(name);
+        
+        // Load the object with correct path
+        BranchGroup obj = LoadObject.loadObject("room3/" + name + ".obj");
+        if (obj != null) {
+            objTG.addChild(obj);
+        } else {
+            System.err.println("Failed to load object: " + name);
         }
         
-        return relativePath; // Fallback to original path
-    }
-
-    private void addBasicLighting() {
-        // Ambient light
-        AmbientLight ambient = new AmbientLight(new Color3f(0.5f, 0.5f, 0.5f));
-        ambient.setInfluencingBounds(new BoundingSphere(new Point3d(), 100.0));
-        sceneRoot.addChild(ambient);
-
-        // Directional light
-        DirectionalLight directional = new DirectionalLight(
-            new Color3f(0.8f, 0.8f, 0.8f),
-            new Vector3f(-1f, -1f, -1f)
-        );
-        directional.setInfluencingBounds(new BoundingSphere(new Point3d(), 100.0));
-        sceneRoot.addChild(directional);
-    }
-
-    private TransformGroup createObjectGroup(String objPath) {
-        TransformGroup tg = new TransformGroup();
-        tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        
-        // Load the object
-        BranchGroup obj = LoadObject.loadObject(objPath);
-        tg.addChild(obj);
-        
-        return tg;
-    }
-
-    public BranchGroup getScene() {
-        return sceneRoot;
+        return objTG;
     }
 }
