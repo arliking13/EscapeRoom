@@ -1,42 +1,42 @@
 # Blender 4.4.0 MTL File: 'room3.blend'
 # www.blender.org
 
-newmtl Lug_Nuts
+newmtl Lug_Nuts.001
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.033180 0.033180 0.033180
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
+map_Kd textures/steel_handle.png
 
-newmtl Material.005
+newmtl Material.004
 Ns 490.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.965614 0.965614 0.965614
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
+map_Kd textures/Door_Lock.jpg
 
-newmtl WoodFine0007_L
+newmtl WoodFine0007_L.001
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd textures/WoodFine0007_L_COLOR.png
 
-newmtl wire_028149177
-Ns 438.003326
+newmtl wire_028149177.001
+Ns 377.665527
 Ka 1.000000 1.000000 1.000000
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
-map_Kd textures/steel_handle.jpg
+map_Kd ../room2/textures/steel_handle.png
