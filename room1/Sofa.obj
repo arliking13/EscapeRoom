@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Sofa.mtl
-o Sofa
+# Sofa
 v -2.603411 0.333293 -1.007664
 v -2.650529 0.326945 -0.972508
 v -2.649797 0.330607 -1.019383

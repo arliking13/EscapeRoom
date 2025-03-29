@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Window_right.mtl
-o Window_right
+# Window_right
 v 6.000401 2.850855 2.260098
 v 6.035645 2.860855 2.354350
 v 7.730909 3.150001 1.221536

@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Paper.mtl
-o Paper
+# Paper
 v -4.704388 0.804158 1.997281
 v -4.442062 0.804158 1.723255
 v -5.065568 0.804158 1.651523

@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Window_middle.mtl
-o Window_middle
+# Window_middle
 v 7.921801 2.850855 -1.009901
 v 7.822858 2.860855 -1.028234
 v 7.920744 3.150000 1.008333

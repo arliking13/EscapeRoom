@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Small_table.mtl
-o Small_table
+# Small_table
 v -4.799975 0.758358 1.580859
 v -4.799975 0.779358 1.571092
 v -4.774059 0.758358 1.582133

@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Baseboard.mtl
-o Baseboard
+# Baseboard
 v -6.000000 0.092857 5.000000
 v -6.000000 0.092857 4.930000
 v -6.000000 0.096377 4.929094

@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Cornice.mtl
-o Cornice_
+# Cornice_
 v 6.000000 4.714286 -5.100000
 v 6.035000 4.714286 -5.100000
 v 6.035000 4.735714 -5.100000
