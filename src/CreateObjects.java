@@ -1,4 +1,11 @@
 import org.jogamp.java3d.*;
+import org.jogamp.java3d.utils.geometry.Primitive;
+import org.jogamp.vecmath.AxisAngle4d;
+import org.jogamp.vecmath.Color3f;
+import org.jogamp.vecmath.Point3d;
+import org.jogamp.vecmath.Vector3d;
+import org.jogamp.java3d.utils.geometry.Box;
+import org.jogamp.java3d.utils.image.TextureLoader;
 import org.jogamp.java3d.utils.geometry.Box;
 import org.jogamp.vecmath.*;
 
