@@ -44,7 +44,7 @@ public class Main {
     	LoadObject.setObjectTexture("Cross_left", "Door_Wood_Dif.jpg");
     	LoadObject.setObjectTexture("Cross_middle", "Door_Wood_Dif.jpg");
     	LoadObject.setObjectTexture("Cross_right", "Door_Wood_Dif.jpg");
-    	LoadObject.setObjectTexture("Desk", "wood.jpg");
+    	LoadObject.setObjectTexture("Desk", "TreeLogEdgeWeathered.jpg");
     	LoadObject.setObjectTexture("Door", "wood_door.jpg");
         LoadObject.setObjectTexture("Escape_door", "metal_door.jpg");
         LoadObject.setObjectTexture("KeypadDoorLock", "keypad.jpg");
