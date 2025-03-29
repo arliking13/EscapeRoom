@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib ChairOld.mtl
-o ChairOld
+# ChairOld
 v 2.177350 0.681771 -3.107585
 v 2.206146 0.681771 -3.134060
 v 2.206146 0.753718 -3.134060

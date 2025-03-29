@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Cross_left.mtl
-o Cross_left
+# Cross_left
 v 5.897751 2.388731 -1.806484
 v 5.912103 2.388731 -1.743608
 v 5.931389 2.388731 -1.743756
