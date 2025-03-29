@@ -1,0 +1,12 @@
+# Blender 4.4.0 MTL File: 'room3.blend'
+# www.blender.org
+
+newmtl lampTexturesMettalic
+Ns 411.819946
+Ka 0.834646 0.834646 0.834646
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 3
+map_Kd textures/lampTextures.png
+map_d textures/lampTextures.png
