@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Cabinet_right_door.mtl
-o Cabinet_right_door
+# Cabinet_right_door
 v 0.725536 0.412787 -3.185587
 v 0.724430 0.412787 -3.818944
 v 0.725536 1.498925 -3.185587

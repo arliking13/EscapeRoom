@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Table_Books_Carpet.mtl
-o Table_Books_Carpet
+# Table_Books_Carpet
 v 0.960727 1.594961 1.056515
 v 0.604548 1.594961 0.560208
 v 0.610537 1.594961 0.555911

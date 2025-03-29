@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib FrameArt1.mtl
-o FrameArt1
+# FrameArt1
 v -5.038724 4.086936 -4.931589
 v -5.038724 1.918783 -4.931589
 v -2.986425 1.918783 -4.931589

@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Door_frame.mtl
-o Door_frame
+# Door_frame
 v 6.854079 2.632683 -0.590591
 v 7.085930 2.632683 -0.590591
 v 7.085930 2.632777 0.590981

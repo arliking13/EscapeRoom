@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib FrameArt2.mtl
-o FrameArt2
+# FrameArt2
 v 5.232477 2.720875 -4.703507
 v 5.234865 2.720968 -4.724857
 v 5.248066 2.769748 -4.760392

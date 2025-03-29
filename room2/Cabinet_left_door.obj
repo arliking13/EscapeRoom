@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Cabinet_left_door.mtl
-o Cabinet_left_door
+# Cabinet_left_door
 v -0.396590 0.412787 -3.789306
 v -1.015598 0.412787 -3.923369
 v -0.396590 1.498925 -3.789306
