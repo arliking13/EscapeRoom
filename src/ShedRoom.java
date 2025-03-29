@@ -19,7 +19,6 @@ public class ShedRoom extends JPanel {
 	
 	private GameCanvas canvas = new GameCanvas();
 	
-	public BranchGroup sceneBG = new BranchGroup();
     private BranchGroup lightBG = new BranchGroup();
     
 	private SimpleUniverse universe = new SimpleUniverse(canvas);
@@ -33,13 +32,19 @@ public class ShedRoom extends JPanel {
 	private Transform3D transform = new Transform3D();
 	
 	public ShedRoom() throws IOException {
-		//set the objects here
+        Canvas3D canvas = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
+        add("Center", canvas);
+        SimpleUniverse universe = new SimpleUniverse(canvas);
+        BranchGroup scene = createScene();
+        scene.compile();
+        universe.getViewingPlatform().setNominalViewingTransform();
+        universe.addBranchGraph(scene);
 		
-		sceneBG = createScene();
-		sceneBG.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
-		sceneBG.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-		sceneBG.compile(); // optimize the BranchGroup
-		universe.addBranchGraph(sceneBG); // attach the scene to SimpleUniverse
+		scene = createScene();
+		scene.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
+		scene.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
+		scene.compile(); // optimize the BranchGroup
+		universe.addBranchGraph(scene); // attach the scene to SimpleUniverse
 		
 		StartScreen startScreen = new StartScreen(this);
 		
@@ -63,16 +68,16 @@ public class ShedRoom extends JPanel {
 	}
 	
 	public BranchGroup createScene() {
-		BranchGroup sceneBG = new BranchGroup();
+		BranchGroup scene = new BranchGroup();
 		Transform3D scale = new Transform3D();
 		scale.setScale(10);
 		TransformGroup scaleTG = new TransformGroup(scale);
 		scaleTG.addChild(CreateObjects.room());
-		sceneBG.addChild(scaleTG);
-		sceneBG.addChild(addLights(new Color3f(0.1f, 0.1f, 0.1f)));
-		sceneBG.addChild(SoundEffects.bkgdSound());
+		scene.addChild(scaleTG);
+		scene.addChild(addLights(new Color3f(0.1f, 0.1f, 0.1f)));
+		scene.addChild(SoundEffects.bkgdSound());
 
-		return sceneBG;
+		return scene;
 	}
 	
 	public Point3d getCamera() {
