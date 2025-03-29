@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Desk.mtl
-o Desk
+# Desk
 v -0.146611 1.620911 -0.459826
 v 0.897681 1.620911 0.457773
 v 0.687792 1.620911 -0.622017

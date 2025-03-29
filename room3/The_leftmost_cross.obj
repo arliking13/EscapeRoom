@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib The_leftmost_cross.mtl
-o The_leftmost_cross
+# The_leftmost_cross
 v 5.897751 1.688731 -2.707273
 v 5.912103 1.688731 -2.644397
 v 5.931389 1.688731 -2.644544

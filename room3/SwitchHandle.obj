@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib SwitchHandle.mtl
-o SwitchHandle
+# SwitchHandle
 v -0.998799 1.978764 -4.785321
 v -1.000636 1.984355 -4.797312
 v -0.975863 2.037663 -4.785088

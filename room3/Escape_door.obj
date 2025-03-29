@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Escape_door.mtl
-o Escape_door
+# Escape_door
 v -5.844223 1.522964 2.643248
 v -5.844223 1.526262 2.634012
 v -5.847106 1.526301 2.634022

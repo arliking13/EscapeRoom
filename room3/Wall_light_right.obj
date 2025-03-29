@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Wall_light_right.mtl
-o Wall_light_right
+# Wall_light_right
 v -5.618994 2.843709 2.813613
 v -5.618994 2.837621 2.811635
 v -5.618994 2.840474 2.807415

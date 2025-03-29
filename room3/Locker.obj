@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Locker.mtl
-o Locker
+# Locker
 v 3.946721 0.207572 3.554738
 v 3.946722 3.093815 3.554738
 v 3.946721 0.207572 4.713399

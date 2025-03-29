@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Window_Casement_Frame.mtl
-o Window_Casement_Frame
+# Window_Casement_Frame
 v -3.988569 2.768312 4.920000
 v -4.001069 2.777812 5.000000
 v -2.612500 3.052500 4.920855

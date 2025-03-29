@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib SwitchMain.mtl
-o SwitchMain
+# SwitchMain
 v -1.328277 1.515032 -5.002572
 v -0.728277 1.515032 -5.002572
 v -1.328277 2.115032 -5.002572

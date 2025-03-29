@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib KeypadDoorLock.mtl
-o KeypadDoorLock
+# KeypadDoorLock
 v -6.000000 1.168586 2.091274
 v -6.000000 1.960084 2.091274
 v -6.000000 1.960084 1.500411

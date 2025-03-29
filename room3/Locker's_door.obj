@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Locker's_door.mtl
-o Locker's_door
+# Locker's_door
 v 3.994075 2.639092 3.522156
 v 3.994075 2.630355 3.522156
 v 3.994075 2.587579 3.522156

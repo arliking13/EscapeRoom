@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Door.mtl
-o Door
+# Door
 v -0.006116 3.052111 -9.083295
 v -0.006116 0.522111 -9.083295
 v -0.006116 3.052111 -8.683295

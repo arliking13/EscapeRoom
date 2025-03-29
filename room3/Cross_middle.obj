@@ -1,7 +1,7 @@
 # Blender 4.4.0
 # www.blender.org
 mtllib Cross_middle.mtl
-o Cross_middle
+# Cross_middle
 v 5.897751 1.688731 -0.828449
 v 5.912103 1.688731 -0.765572
 v 5.931389 1.688731 -0.765720
