@@ -2,8 +2,8 @@ import org.jogamp.java3d.*;
 import org.jogamp.vecmath.*;
 import java.awt.event.*;
 
-public class CameraControl implements KeyListener {
-    private TransformGroup viewTransformGroup;
+public class CameraControl implements KeyListener, MouseMotionListener{
+	private TransformGroup viewTransformGroup;
     private Transform3D transform = new Transform3D();
     private Vector3f position = new Vector3f(0.0f, 1.5f, 5.0f);
     private float angleY = 0.0f;   // Yaw (left/right rotation)
@@ -16,6 +16,19 @@ public class CameraControl implements KeyListener {
         viewTransformGroup.getTransform(transform);
         updateTransform();
     }
+
+    private void add(Canvas3D canvas) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private BranchGroup createSceneGraph() {
+		BranchGroup root = new BranchGroup();
+        TransformGroup objTransform = new TransformGroup();
+        objTransform.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        root.addChild(objTransform);
+        return root;
+	}
 
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
@@ -85,7 +98,25 @@ public class CameraControl implements KeyListener {
         
         viewTransformGroup.setTransform(transform);
     }
+	
+	public void mouseDragged(MouseEvent e) {
+        // Update angles based on mouse movement
+        angleX += e.getX() * 0.01;
+        angleY += e.getY() * 0.01;
 
+        // Apply rotations to the view transform
+        Transform3D rotX = new Transform3D();
+        Transform3D rotY = new Transform3D();
+        rotX.rotX(angleY);
+        rotY.rotY(angleX);
+        transform.mul(rotX);
+        transform.mul(rotY);
+
+        // Update the view transform group
+        viewTransformGroup.setTransform(transform);
+    }
+
+    public void mouseMoved(MouseEvent e) { }
     public void keyReleased(KeyEvent e) {}
     public void keyTyped(KeyEvent e) {}
 }
