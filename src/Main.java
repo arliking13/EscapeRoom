@@ -113,31 +113,31 @@ public class Main {
         scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
         
         // Doors and windows
-        scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, -3.5), 1.0));
-        scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, Math.PI), new Vector3d(0, 0, 3.5), 1.0));
+        scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(0.298, -0.2, -0.8), 0.9));
+        scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.4, -0.2, 0.3), 0.5));
         scene.addChild(creator.createObject("Window_Casement_Frame", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3.5, 1, 0), 1.0));
         
         // Wall elements
         scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
         scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
         scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
-        scene.addChild(creator.createObject("Wall_light_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3, 1.8, 0), 0.7));
-        scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3, 1.8, 0), 0.7));
+        scene.addChild(creator.createObject("Wall_light_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.18, 0.2, 0.4), 0.7));
+        scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.18, 0.2, 0.3), 0.7));
         scene.addChild(creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06));
         
         // Other objects
-        scene.addChild(creator.createObject("Paper", new AxisAngle4d(0, 1, 0, 0), new Vector3d(1.2, 0.8, -1.3), 0.2));
-        scene.addChild(creator.createObject("SwitchMain", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3.2, 1.5, 0.1), 0.1));
-        scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3.2, 1.5, 0.1), 0.1));
-        scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.5, 1.2, 1), 0.2));
+        scene.addChild(creator.createObject("Paper", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.7, -0.1, 0.6), 0.2));
+        scene.addChild(creator.createObject("SwitchMain", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.3), 0.2));
+        scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.3), 0.2));
+        scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.7, -0.3, 0.1), 0.2));
         scene.addChild(creator.createObject("Lockers_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0.5, 1.5), 0.5));
         
         // Cross objects (wall decorations)
-        scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 1.8, -3.2), 0.5));
-        scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 1.8, -3.2), 0.5));
-        scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(2, 1.8, -3.2), 0.5));
-        scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3, 1.8, -3.2), 0.5));
-        scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3, 1.8, -3.2), 0.5));
+        scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.1, -0.2), 0.2));
+        scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.0, 0.2), 0.2));
+        scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.02, -0.2), 0.2));
+        scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(1, 1.8, 1), 0.2));
+        scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(1, 1.8, 1), 0.2));
         
         // Add enhanced lighting
         scene.addChild(createEnhancedLights());
