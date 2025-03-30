@@ -8,7 +8,7 @@ import org.jogamp.vecmath.Vector3d;
 import org.jogamp.vecmath.Vector3f;
 import java.awt.event.*;
 
-public class CameraControl implements KeyListener{
+public class CameraControl implements KeyListener, MouseMotionListener{
 	private TransformGroup viewTransformGroup;
     private Transform3D transform = new Transform3D();
     private Vector3f position = new Vector3f(0.0f, 0.0f, 5.0f); // Initial position
@@ -45,8 +45,11 @@ public class CameraControl implements KeyListener{
 	}
 
 	private BranchGroup createSceneGraph() {
-		// TODO Auto-generated method stub
-		return null;
+		BranchGroup root = new BranchGroup();
+        TransformGroup objTransform = new TransformGroup();
+        objTransform.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        root.addChild(objTransform);
+        return root;
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -78,7 +81,25 @@ public class CameraControl implements KeyListener{
 
         viewTransformGroup.setTransform(transform);
     }
+	
+	public void mouseDragged(MouseEvent e) {
+        // Update angles based on mouse movement
+        angleX += e.getX() * 0.01;
+        angleY += e.getY() * 0.01;
 
+        // Apply rotations to the view transform
+        Transform3D rotX = new Transform3D();
+        Transform3D rotY = new Transform3D();
+        rotX.rotX(angleY);
+        rotY.rotY(angleX);
+        transform.mul(rotX);
+        transform.mul(rotY);
+
+        // Update the view transform group
+        viewTransformGroup.setTransform(transform);
+    }
+
+    public void mouseMoved(MouseEvent e) { }
     public void keyReleased(KeyEvent e) {}
     public void keyTyped(KeyEvent e) {}
 
