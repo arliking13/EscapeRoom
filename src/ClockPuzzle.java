@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 
 public class ClockPuzzle extends JFrame implements MouseListener, KeyListener {
+    PuzzleClass puzzleClass = new PuzzleClass();
 	private static final long serialVersionUID = 1L;
     private SimpleUniverse universe;
     private BranchGroup root;
@@ -99,9 +100,10 @@ public class ClockPuzzle extends JFrame implements MouseListener, KeyListener {
     private void checkPassword() {
         if (inputSequence.size() == CORRECT_PASSCODE.length) {
             if (inputSequence.equals(java.util.Arrays.asList(1, 0, 2))) {
-            	SoundEffect
-                unlock();
+            	SoundEffects.playSound(SoundEffects.correctPinBGSound);
+				puzzleClass.unlock();
             } else {
+            	SoundEffects.playSound(SoundEffects.wrongPinBGSound);
                 System.out.println("Wrong Code! Try Again.");
             }
             inputSequence.clear();
@@ -111,6 +113,7 @@ public class ClockPuzzle extends JFrame implements MouseListener, KeyListener {
     public boolean unlock() {
     	
     }
+    
     @Override
     public void keyTyped(KeyEvent e) {}
 

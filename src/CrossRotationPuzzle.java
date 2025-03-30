@@ -66,6 +66,19 @@ public class CrossRotationPuzzle extends JFrame implements ActionListener {
         tg3.addChild(cross3.getTransformGroup());
         rootTG.addChild(tg3);
         
+        Transform3D pos4 = new Transform3D();
+        pos4.setTranslation(new Vector3f(0.5f, 0, 0));
+        TransformGroup tg4 = new TransformGroup(pos4);
+        tg4.addChild(cross4.getTransformGroup());
+        rootTG.addChild(tg4);
+        
+        Transform3D pos5 = new Transform3D();
+        pos3.setTranslation(new Vector3f(0.5f, 0, 0));
+        TransformGroup tg5 = new TransformGroup(pos5);
+        tg5.addChild(cross5.getTransformGroup());
+        rootTG.addChild(tg5);
+        
+        
         return objRoot;
     }
     
@@ -75,6 +88,8 @@ public class CrossRotationPuzzle extends JFrame implements ActionListener {
         case 0 -> cross1.rotate();
         case 1 -> cross2.rotate();
         case 2 -> cross3.rotate();
+        case 3 -> cross4.rotate();
+        case 4 -> cross5.rotate();
     	}
     	step++;
     }
