@@ -3,10 +3,12 @@ import org.jogamp.java3d.Canvas3D;
 import org.jogamp.java3d.Transform3D;
 import org.jogamp.java3d.TransformGroup;
 import org.jogamp.java3d.utils.universe.SimpleUniverse;
+import org.jogamp.vecmath.Point3d;
+import org.jogamp.vecmath.Vector3d;
 import org.jogamp.vecmath.Vector3f;
 import java.awt.event.*;
 
-public class CameraControl {
+public class CameraControl implements KeyListener{
 	private TransformGroup viewTransformGroup;
     private Transform3D transform = new Transform3D();
     private Vector3f position = new Vector3f(0.0f, 0.0f, 5.0f); // Initial position
@@ -24,6 +26,8 @@ public class CameraControl {
 
         // Get the ViewingPlatform and its TransformGroup
         viewTransformGroup = universe.getViewingPlatform().getViewPlatformTransform();
+        transform.lookAt(new Point3d(0.0, 0.0, 10.0), new Point3d(0.0, 0.0, 0.0), new Vector3d(0.0, 1.0, 0.0)); 
+        transform.invert();
 
         // Setup the scene
         BranchGroup scene = createSceneGraph();
