@@ -1,42 +1,20 @@
-import org.jogamp.java3d.BranchGroup;
-import org.jogamp.java3d.Canvas3D;
-import org.jogamp.java3d.Transform3D;
-import org.jogamp.java3d.TransformGroup;
-import org.jogamp.java3d.utils.universe.SimpleUniverse;
-import org.jogamp.vecmath.Point3d;
-import org.jogamp.vecmath.Vector3d;
-import org.jogamp.vecmath.Vector3f;
+import org.jogamp.java3d.*;
+import org.jogamp.vecmath.*;
 import java.awt.event.*;
 
 public class CameraControl implements KeyListener, MouseMotionListener{
 	private TransformGroup viewTransformGroup;
     private Transform3D transform = new Transform3D();
-    private Vector3f position = new Vector3f(0.0f, 0.0f, 5.0f); // Initial position
-    private float angleY = 0.0f;
-    private float angleX = 0.0f;
+    private Vector3f position = new Vector3f(0.0f, 1.5f, 5.0f);
+    private float angleY = 0.0f;   // Yaw (left/right rotation)
+    private float angleX = 0.0f;   // Pitch (up/down rotation)
+    private float moveSpeed = 0.2f;
+    private float rotationSpeed = 0.05f;
 
     public CameraControl(TransformGroup tg) {
         this.viewTransformGroup = tg;
-        Canvas3D canvas = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
-        add(canvas);
-        canvas.addKeyListener((KeyListener) this);
-
-        // Create a SimpleUniverse
-        SimpleUniverse universe = new SimpleUniverse(canvas);
-
-        // Get the ViewingPlatform and its TransformGroup
-        viewTransformGroup = universe.getViewingPlatform().getViewPlatformTransform();
-        transform.lookAt(new Point3d(0.0, 0.0, 10.0), new Point3d(0.0, 0.0, 0.0), new Vector3d(0.0, 1.0, 0.0)); 
-        transform.invert();
-
-        // Setup the scene
-        BranchGroup scene = createSceneGraph();
-        universe.addBranchGraph(scene);
-
-        // Enable the canvas to receive focus for key events
-        canvas.requestFocus();
-        transform.setTranslation(position);
-        viewTransformGroup.setTransform(transform);
+        viewTransformGroup.getTransform(transform);
+        updateTransform();
     }
 
     private void add(Canvas3D canvas) {
@@ -52,33 +30,72 @@ public class CameraControl implements KeyListener, MouseMotionListener{
         return root;
 	}
 
-	public void keyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
+        
+        // Movement controls
+        Vector3f forward = new Vector3f();
+        Vector3f side = new Vector3f();
+        transform.get(forward);
+        forward.z = -forward.z; // Invert Z for forward direction
+        side.set(forward.z, 0, -forward.x); // Correct perpendicular vector for strafing
+        
         switch (keyCode) {
-            case KeyEvent.VK_LEFT:
-                angleY -= 0.1f; // Rotate left
+            case KeyEvent.VK_W: // Move forward
+                position.x += forward.x * moveSpeed;
+                position.y += forward.y * moveSpeed;
+                position.z += forward.z * moveSpeed;
                 break;
-            case KeyEvent.VK_RIGHT:
-                angleY += 0.1f; // Rotate right
+            case KeyEvent.VK_S: // Move backward
+                position.x -= forward.x * moveSpeed;
+                position.y -= forward.y * moveSpeed;
+                position.z -= forward.z * moveSpeed;
                 break;
-            case KeyEvent.VK_UP:
-                angleX -= 0.1f; // Look up
+            case KeyEvent.VK_D: // Strafe left (corrected)
+                position.x -= side.x * moveSpeed;
+                position.z -= side.z * moveSpeed;
                 break;
-            case KeyEvent.VK_DOWN:
-                angleX += 0.1f; // Look down
+            case KeyEvent.VK_A: // Strafe right (corrected)
+                position.x += side.x * moveSpeed;
+                position.z += side.z * moveSpeed;
+                break;
+            case KeyEvent.VK_SPACE: // Move up
+                position.y += moveSpeed;
+                break;
+            case KeyEvent.VK_SHIFT: // Move down
+                position.y -= moveSpeed;
+                break;
+            case KeyEvent.VK_LEFT: // Look left
+                angleY += rotationSpeed;
+                break;
+            case KeyEvent.VK_RIGHT: // Look right
+                angleY -= rotationSpeed;
+                break;
+            case KeyEvent.VK_UP: // Look up
+                angleX += rotationSpeed;
+                break;
+            case KeyEvent.VK_DOWN: // Look down
+                angleX -= rotationSpeed;
                 break;
         }
+        
+        updateTransform();
+    }
 
-        Transform3D rotX = new Transform3D();
-        Transform3D rotY = new Transform3D();
-        rotX.rotX(angleX);
-        rotY.rotY(angleY);
+    private void updateTransform() {
+        // Limit pitch to avoid gimbal lock
+        angleX = Math.max(-(float)Math.PI/2, Math.min((float)Math.PI/2, angleX));
+        
+        Transform3D rotationX = new Transform3D();
+        Transform3D rotationY = new Transform3D();
+        rotationX.rotX(angleX);
+        rotationY.rotY(angleY);
         
         transform.setIdentity();
-        transform.mul(rotY);
-        transform.mul(rotX);
+        transform.mul(rotationY);
+        transform.mul(rotationX);
         transform.setTranslation(position);
-
+        
         viewTransformGroup.setTransform(transform);
     }
 	
@@ -102,5 +119,4 @@ public class CameraControl implements KeyListener, MouseMotionListener{
     public void mouseMoved(MouseEvent e) { }
     public void keyReleased(KeyEvent e) {}
     public void keyTyped(KeyEvent e) {}
-
 }
