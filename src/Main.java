@@ -64,16 +64,16 @@ public class Main {
         LoadObject.setObjectTexture("Escape_door", "Door.jpg");
         LoadObject.setObjectTexture("KeypadDoorLock", "KeypadDoorLockAlbedo.jpg");
         LoadObject.setObjectTexture("Locker", "Locker.jpg");
-        LoadObject.setObjectTexture("Lockers_door", "metal.jpg");
+        LoadObject.setObjectTexture("Lockers_door", "rust_walls.jpg");
         LoadObject.setObjectTexture("Paper", "paper.jpg");
         LoadObject.setObjectTexture("room3", "rust_walls.jpg");
         LoadObject.setObjectTexture("SwitchHandle", "SwitchHandleAlbedo.jpg");
         LoadObject.setObjectTexture("SwitchMain", "SwitchMainAlbedo.jpg");
         LoadObject.setObjectTexture("The_leftmost_cross", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("The_rightmost_cross", "Door_Wood_Dif.jpg");
-        LoadObject.setObjectTexture("Wall_light_left", "light_fixture.jpg");
-        LoadObject.setObjectTexture("Wall_light_right", "light_fixture.jpg");
-        LoadObject.setObjectTexture("Window_Casement_Frame", "window_frame.jpg");
+        LoadObject.setObjectTexture("Wall_light_left", "rust_walls.jpg");
+        LoadObject.setObjectTexture("Wall_light_right", "rust_walls.jpg");
+        LoadObject.setObjectTexture("Window_Casement_Frame", "Door_Wood_Dif.jpg");
     }
     
     private static void configureViewingPlatform(SimpleUniverse universe) {
@@ -108,9 +108,9 @@ public class Main {
         scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
         
         // Furniture objects (spread out)
-        scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-1.5, -0.5, -2), 0.5));
-        scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(1.5, 0, -1.5), 0.8));
-        scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0, 1.5), 0.9));
+        scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.2), 0.2));
+        scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, 0.1), 0.3));
+        scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
         
         // Doors and windows
         scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, -3.5), 1.0));
@@ -119,11 +119,11 @@ public class Main {
         
         // Wall elements
         scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
-        scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
+        scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
         scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
         scene.addChild(creator.createObject("Wall_light_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3, 1.8, 0), 0.7));
         scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3, 1.8, 0), 0.7));
-        scene.addChild(creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 2, 2), 0.5));
+        scene.addChild(creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06));
         
         // Other objects
         scene.addChild(creator.createObject("Paper", new AxisAngle4d(0, 1, 0, 0), new Vector3d(1.2, 0.8, -1.3), 0.2));
