@@ -13,8 +13,8 @@ import java.awt.Point;
 
 public class Main {
     // Sensitivity controls
-    private static final float MOUSE_SENSITIVITY = 0.015f;  // Lower = slower mouse look
-    private static final float MOVEMENT_SPEED = 0.08f;      // Lower = slower WASD movement
+    private static final float MOUSE_SENSITIVITY = 0.0008f;  // Lower = slower mouse look
+    private static final float MOVEMENT_SPEED = 0.009f;      // Lower = slower WASD movement
     private static final float VERTICAL_SPEED = 0.04f;      // Lower = slower up/down movement
     
     private static PlayerControls playerControls;
@@ -207,7 +207,7 @@ public class Main {
             
             if (dx != 0 || dy != 0) {
                 yaw -= dx * mouseSensitivity;
-                pitch += dy * mouseSensitivity;
+                pitch -= dy * mouseSensitivity;
                 centerMouse();
             }
         }
