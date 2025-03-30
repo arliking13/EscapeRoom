@@ -1,15 +1,10 @@
 import org.jogamp.java3d.*;
-import org.jogamp.java3d.utils.geometry.Primitive;
-import org.jogamp.vecmath.AxisAngle4d;
-import org.jogamp.vecmath.Color3f;
-import org.jogamp.vecmath.Point3d;
-import org.jogamp.vecmath.Vector3d;
-import org.jogamp.java3d.utils.geometry.Box;
-import org.jogamp.java3d.utils.image.TextureLoader;
 import org.jogamp.java3d.utils.geometry.Box;
 import org.jogamp.vecmath.*;
 
 public class CreateObjects {
+    private CrossPuzzle crossPuzzle;
+    
     public TransformGroup createObject(String objName, AxisAngle4d rot, Vector3d pos, double scale) {
         System.out.println("\nCreating object: " + objName);
         
@@ -20,6 +15,8 @@ public class CreateObjects {
         
         TransformGroup objNode = new TransformGroup(transform);
         objNode.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        objNode.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
+        objNode.setCapability(TransformGroup.ALLOW_CHILDREN_WRITE);
         
         BranchGroup object = LoadObject.loadObject(objName);
         if (object != null) {
@@ -27,8 +24,25 @@ public class CreateObjects {
         } else {
             objNode.addChild(createErrorObject());
         }
+
+        // Set up puzzle behavior for crosses
+        if (objName.equals("Cross_middle")) {
+            crossPuzzle = new CrossPuzzle(objNode);
+        }
+        
+        // Connect other crosses to the puzzle
+        if (crossPuzzle != null && isConnectedCross(objName)) {
+            crossPuzzle.addConnectedCross(objNode);
+        }
         
         return objNode;
+    }
+    
+    private boolean isConnectedCross(String objName) {
+        return objName.equals("Cross_left") || 
+               objName.equals("Cross_right") ||
+               objName.equals("The_leftmost_cross") ||
+               objName.equals("The_rightmost_cross");
     }
     
     private BranchGroup createErrorObject() {

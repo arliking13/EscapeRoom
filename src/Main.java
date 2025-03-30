@@ -11,10 +11,11 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.Enumeration;
 
 public class Main {
     // Sensitivity controls
-    private static final float MOUSE_SENSITIVITY = 0.000008f;
+    private static final float MOUSE_SENSITIVITY = 0.0008f;
     private static final float MOVEMENT_SPEED = 0.009f;
     private static final float VERTICAL_SPEED = 0.04f;
     
@@ -41,7 +42,7 @@ public class Main {
         canvas = new GameCanvas();
         canvas.setPreferredSize(new Dimension(1280, 720));
         
-        JFrame frame = new JFrame("3D Escape Room");
+        JFrame frame = new JFrame("3D Escape Room with Cross Puzzle");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
         frame.pack();
@@ -58,9 +59,12 @@ public class Main {
             VERTICAL_SPEED
         );
         
+        // Initialize sound system
+        SoundEffects.enableAudio(universe);
+        
         customizeTextures();
     }
-    
+
     private static class PlayerControls implements KeyListener, MouseMotionListener {
         private final TransformGroup viewTransformGroup;
         private final Transform3D transform = new Transform3D();
@@ -259,6 +263,7 @@ public class Main {
         try {
             CreateObjects creator = new CreateObjects();
             
+            // Create all scene objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.2), 0.2));
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, 0.1), 0.3));
@@ -277,15 +282,23 @@ public class Main {
             scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.3), 0.2));
             scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.7, -0.3, 0.1), 0.2));
             scene.addChild(creator.createObject("Lockers_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0.5, 1.5), 0.5));
-        
             
-           // scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.02, -0.2), 0.06));
-
+<<<<<<< HEAD
+            // Create cross objects that will be part of the puzzle
+                //crosses
+                scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
+                scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
+                scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
+                scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
+                scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
+=======
+            //crosses
             scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
             scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
             scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
             scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
             scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
+>>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom
    
 
         } catch (Exception e) {
