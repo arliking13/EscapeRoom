@@ -32,20 +32,34 @@ public class Main {
         
         // Add scene to universe
         universe.addBranchGraph(scene);
+        
+        // Initialize camera control
+        initCameraControl(universe, canvas);
+    }
+    
+    private static void initCameraControl(SimpleUniverse universe, Canvas3D canvas) {
+        // Get the ViewingPlatform's transform group
+        TransformGroup viewTransformGroup = universe.getViewingPlatform().getViewPlatformTransform();
+        
+        // Create camera control and pass the transform group
+        CameraControl cameraControl = new CameraControl(viewTransformGroup);
+        
+        // Add key listener to canvas
+        canvas.addKeyListener(cameraControl);
+        canvas.requestFocus();
     }
     
     private static void customizeTextures() {
         // Customize textures for objects here
-    	LoadObject.setObjectTexture("Baseboard", "Door_Wood_Dif.jpg");
-    	LoadObject.setObjectTexture("Ceiling_lamp", "Door_Wood_Dif.jpg");
-    	LoadObject.setObjectTexture("ChairOld", "wood_planks.jpg");
-    	LoadObject.setObjectTexture("Cornice", "wood_planks.jpg");
-    	LoadObject.setObjectTexture("Cornice", "wood_planks.jpg");
-    	LoadObject.setObjectTexture("Cross_left", "Door_Wood_Dif.jpg");
-    	LoadObject.setObjectTexture("Cross_middle", "Door_Wood_Dif.jpg");
-    	LoadObject.setObjectTexture("Cross_right", "Door_Wood_Dif.jpg");
-    	LoadObject.setObjectTexture("Desk", "TreeLogEdgeWeathered.jpg");
-    	LoadObject.setObjectTexture("Door", "wood_door.jpg");
+        LoadObject.setObjectTexture("Baseboard", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("Ceiling_lamp", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("ChairOld", "wood_planks.jpg");
+        LoadObject.setObjectTexture("Cornice", "wood_planks.jpg");
+        LoadObject.setObjectTexture("Cross_left", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("Cross_middle", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("Cross_right", "Door_Wood_Dif.jpg");
+        LoadObject.setObjectTexture("Desk", "TreeLogEdgeWeathered.jpg");
+        LoadObject.setObjectTexture("Door", "wood_door.jpg");
         LoadObject.setObjectTexture("Escape_door", "metal_door.jpg");
         LoadObject.setObjectTexture("KeypadDoorLock", "keypad.jpg");
         LoadObject.setObjectTexture("Locker", "metal.jpg");
