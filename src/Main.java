@@ -53,8 +53,9 @@ public class Main {
         // Customize textures for objects here
         LoadObject.setObjectTexture("Baseboard", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("Ceiling_lamp", "steel_handle.jpg");
-        LoadObject.setObjectTexture("ChairOld", "wood_planks.jpg");
-        LoadObject.setObjectTexture("Cornice", "wood_planks.jpg");
+        LoadObject.setObjectTexture("ChairOld", "TreeLogEdgeWeathered.jpg");
+        LoadObject.setObjectTexture("Cornice", "Curves.jpg");
+        LoadObject.setObjectTexture("Cornice", "Curves.jpg");
         LoadObject.setObjectTexture("Cross_left", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("Cross_middle", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("Cross_right", "Door_Wood_Dif.jpg");
@@ -62,12 +63,12 @@ public class Main {
         LoadObject.setObjectTexture("Door", "Door.jpg");
         LoadObject.setObjectTexture("Escape_door", "Door.jpg");
         LoadObject.setObjectTexture("KeypadDoorLock", "KeypadDoorLockAlbedo.jpg");
-        LoadObject.setObjectTexture("Locker", "metal.jpg");
+        LoadObject.setObjectTexture("Locker", "Locker.jpg");
         LoadObject.setObjectTexture("Lockers_door", "metal.jpg");
         LoadObject.setObjectTexture("Paper", "paper.jpg");
         LoadObject.setObjectTexture("room3", "rust_walls.jpg");
-        LoadObject.setObjectTexture("SwitchHandle", "metal.jpg");
-        LoadObject.setObjectTexture("SwitchMain", "switch.jpg");
+        LoadObject.setObjectTexture("SwitchHandle", "SwitchHandleAlbedo.jpg");
+        LoadObject.setObjectTexture("SwitchMain", "SwitchMainAlbedo.jpg");
         LoadObject.setObjectTexture("The_leftmost_cross", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("The_rightmost_cross", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("Wall_light_left", "light_fixture.jpg");
@@ -118,7 +119,7 @@ public class Main {
         
         // Wall elements
         scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
-        scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.3, 0), 1.0));
+        scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
         scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
         scene.addChild(creator.createObject("Wall_light_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-3, 1.8, 0), 0.7));
         scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3, 1.8, 0), 0.7));
