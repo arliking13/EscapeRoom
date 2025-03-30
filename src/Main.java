@@ -12,15 +12,12 @@ import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
-<<<<<<< HEAD
+
 import javax.swing.JFrame;
 
 // 1) Import your MazePanel:
 import maze2d.MazePanel;
 
-=======
-//updated main
->>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom
 public class Main {
     // Sensitivity controls
     private static final float MOUSE_SENSITIVITY = 0.0008f;
