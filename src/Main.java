@@ -4,14 +4,18 @@ import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import javax.swing.JFrame;
 import java.awt.event.*;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
+import javax.swing.JFrame;
+
+// 1) Import your MazePanel:
+import maze2d.MazePanel;
 
 public class Main {
     // Sensitivity controls
@@ -65,6 +69,7 @@ public class Main {
         customizeTextures();
     }
 
+    // ------------------------------ Player Controls ------------------------------
     private static class PlayerControls implements KeyListener, MouseMotionListener {
         private final TransformGroup viewTransformGroup;
         private final Transform3D transform = new Transform3D();
@@ -81,8 +86,8 @@ public class Main {
         private final GameCanvas canvas;
         
         public PlayerControls(TransformGroup tg, GameCanvas canvas, 
-                            float mouseSensitivity, float moveSpeed, 
-                            float verticalSpeed) throws AWTException {
+                              float mouseSensitivity, float moveSpeed, 
+                              float verticalSpeed) throws AWTException {
             this.viewTransformGroup = tg;
             this.canvas = canvas;
             this.mouseSensitivity = mouseSensitivity;
@@ -112,6 +117,7 @@ public class Main {
         public void update() {
             Vector3f moveDir = new Vector3f();
             
+            // Movement (WASD or SHIFT/SPACE for up/down)
             if (forward || backward || left || right) {
                 Vector3f forwardDir = new Vector3f(
                     (float)Math.sin(yaw),
@@ -138,7 +144,7 @@ public class Main {
             position.x += moveDir.x;
             position.z += moveDir.z;
             
-            if (up) position.y += verticalSpeed;
+            if (up)   position.y += verticalSpeed;
             if (down) position.y -= verticalSpeed;
             
             position.y = Math.max(0.0f, position.y);
@@ -202,7 +208,7 @@ public class Main {
             int dy = currentPos.y - centerY;
             
             if (dx != 0 || dy != 0) {
-                yaw -= dx * mouseSensitivity;
+                yaw   -= dx * mouseSensitivity;
                 pitch -= dy * mouseSensitivity;
                 centerMouse();
             }
@@ -212,7 +218,9 @@ public class Main {
         @Override public void mouseDragged(MouseEvent e) {}
     }
 
+    // ----------------------------- Texture Setup -----------------------------
     private static void customizeTextures() {
+        // Associate object names to texture files
         LoadObject.setObjectTexture("Baseboard", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("Ceiling_lamp", "steel_handle.jpg");
         LoadObject.setObjectTexture("ChairOld", "TreeLogEdgeWeathered.jpg");
@@ -237,6 +245,7 @@ public class Main {
         LoadObject.setObjectTexture("Window_Casement_Frame", "Door_Wood_Dif.jpg");
     }
     
+    // ------------------------- Viewing Platform --------------------------
     private static void configureViewingPlatform() {
         ViewingPlatform vp = universe.getViewingPlatform();
         View view = universe.getViewer().getView();
@@ -256,6 +265,7 @@ public class Main {
         vtg.setTransform(t3d);
     }
     
+    // ------------------------------- Scene -------------------------------
     private static BranchGroup createScene() {
         BranchGroup scene = new BranchGroup();
         scene.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
@@ -263,7 +273,7 @@ public class Main {
         try {
             CreateObjects creator = new CreateObjects();
             
-            // Create all scene objects
+            // 1) Load your 3D "room3" + objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.2), 0.2));
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, 0.1), 0.3));
@@ -282,13 +292,16 @@ public class Main {
             scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.3), 0.2));
             scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.7, -0.3, 0.1), 0.2));
             scene.addChild(creator.createObject("Lockers_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0.5, 1.5), 0.5));
-            
-//crosses
-                scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
-                scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
-                scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
-                scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
-                scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
+
+            // Crosses
+            scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
+            scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
+            scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
+            scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
+            scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
+
+            // 2) Insert the MazePanel "screen" somewhere in the room:
+            add2DMazeToScene(scene);
 
         } catch (Exception e) {
             System.err.println("Error creating scene objects: " + e.getMessage());
@@ -297,6 +310,84 @@ public class Main {
         
         scene.addChild(createEnhancedLights());
         return scene;
+    }
+
+    /**
+     * Create a thin "screen" that displays the 2D MazePanel, and add it to the scene.
+     */
+    private static void add2DMazeToScene(BranchGroup scene) {
+        // A) Instantiate your MazePanel
+        MazePanel myMazePanel = new MazePanel(); // no args constructor
+
+        // B) Render MazePanel to BufferedImage
+        int width = 400;
+        int height = 300;
+        BufferedImage mazeImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = mazeImage.createGraphics();
+        myMazePanel.setSize(width, height);
+        myMazePanel.paint(g2d);
+        g2d.dispose();
+
+        // C) Convert that BufferedImage into a Java3D Appearance (texture)
+        Appearance mazeAppearance = createAppearanceFromImage(mazeImage);
+
+        // D) Create a thin Box with that texture + position it on the wall
+        float wallWidth  = 0.5f;  // 0.5 meters wide in 3D space
+        float wallHeight = 0.375f; // ratio of 4:3 
+        Vector3d position = new Vector3d(0.7, -0.1, 0.6);  // pick any coords that make sense
+        AxisAngle4d rotation = new AxisAngle4d(0, 1, 0, Math.PI / 2); // 90° about Y
+
+        Box mazeWall = new Box(
+            wallWidth / 2,
+            wallHeight / 2,
+            0.001f,  // thin depth
+            Box.GENERATE_TEXTURE_COORDS,
+            mazeAppearance
+        );
+
+        Transform3D transform = new Transform3D();
+        transform.setRotation(rotation);
+        transform.setTranslation(position);
+
+        TransformGroup tg = new TransformGroup(transform);
+        tg.addChild(mazeWall);
+
+        scene.addChild(tg);
+    }
+
+    /**
+     * Converts a BufferedImage to a textured Appearance for Java3D.
+     */
+    private static Appearance createAppearanceFromImage(BufferedImage image) {
+        org.jogamp.java3d.utils.image.TextureLoader loader =
+            new org.jogamp.java3d.utils.image.TextureLoader(image, "RGBA", null);
+        Texture texture = loader.getTexture();
+        if (texture == null) {
+            // fallback
+            return new Appearance();
+        }
+
+        texture.setBoundaryModeS(Texture.WRAP);
+        texture.setBoundaryModeT(Texture.WRAP);
+        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
+        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
+
+        Material mat = new Material();
+        mat.setAmbientColor(0.5f, 0.5f, 0.5f);
+        mat.setDiffuseColor(1f, 1f, 1f);
+        mat.setSpecularColor(0.2f, 0.2f, 0.2f);
+        mat.setShininess(32f);
+        mat.setLightingEnable(true);
+
+        TextureAttributes texAttr = new TextureAttributes();
+        texAttr.setTextureMode(TextureAttributes.MODULATE);
+
+        Appearance appearance = new Appearance();
+        appearance.setMaterial(mat);
+        appearance.setTexture(texture);
+        appearance.setTextureAttributes(texAttr);
+
+        return appearance;
     }
     
     private static BranchGroup createErrorScene() {
@@ -336,7 +427,7 @@ public class Main {
                 try {
                     playerControls.update();
                     canvas.postRender();
-                    Thread.sleep(16);
+                    Thread.sleep(16); // ~60 fps
                 } catch (Exception e) {
                     System.err.println("Game loop error: " + e.getMessage());
                 }
