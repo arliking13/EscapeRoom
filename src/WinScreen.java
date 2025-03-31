@@ -33,7 +33,10 @@ public class WinScreen extends JPanel {
         add(titleLabel, BorderLayout.NORTH);
         add(subtext, BorderLayout.CENTER);
 
-        // Play victory sound (reuse your sound system)
-        SoundEffects.playSound(SoundEffects.correctPinBGSound);
+        SoundEffects soundMan = new SoundEffects(); // Create an instance
+        String fnm = "Door_Open"; // Ensure this matches the loaded sound name
+        if (soundMan.load(fnm, false)) { // Load the sound first
+            soundMan.play(fnm); // Play the sound
+        }
     }
 }

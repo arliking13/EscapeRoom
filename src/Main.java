@@ -4,9 +4,13 @@ import org.jogamp.java3d.utils.geometry.Sphere;
 import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 import java.awt.event.*;
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -71,7 +75,7 @@ public class Main {
                                 TransformGroup tg = (TransformGroup)parent;
                                 if (tg.getUserData() != null) {
                                     String objName = (String)tg.getUserData();
-                                    if (objName.equals("Door")) {
+                                    if (objName.equals("Escape_door")) {
                                     	SoundEffects soundMan = new SoundEffects(); // Create an instance
                                         String fnm = "Door_Open"; // Ensure this matches the loaded sound name
                                         if (soundMan.load(fnm, false)) { // Load the sound first
@@ -357,19 +361,6 @@ public class Main {
         return scene;
     }
     
-    private static Node createPlayerGeometry() {
-        // Create a simple collision shape for the player
-        // This should match your player's actual size
-        Appearance app = new Appearance();
-        app.setTransparencyAttributes(new TransparencyAttributes(
-            TransparencyAttributes.FASTEST, 0.0f));
-        
-        Sphere playerSphere = new Sphere(0.2f, 
-            Sphere.GENERATE_NORMALS | Sphere.ENABLE_COLLISION_REPORTING, 
-            app);
-        return playerSphere;
-    }
-
     // Modify your endGame method
     public static void endGame(boolean escaped) {
         if (escaped) {
