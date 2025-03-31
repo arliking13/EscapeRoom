@@ -1,10 +1,10 @@
 import org.jogamp.java3d.*;
 import org.jogamp.java3d.utils.geometry.Box;
+import org.jogamp.java3d.utils.geometry.Sphere;
 import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import javax.swing.JFrame;
 import java.awt.event.*;
@@ -13,11 +13,9 @@ import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
-import javax.swing.JFrame;
-
-// Import your MazePanel
-import maze2d.MazePanel;
-
+import org.jogamp.java3d.utils.picking.PickTool;
+import org.jogamp.java3d.utils.picking.PickResult;
+import org.jogamp.java3d.utils.picking.PickCanvas;
 
 public class Main {
     // Sensitivity controls
@@ -29,19 +27,51 @@ public class Main {
     private static boolean mouseCaptured = true;
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
-    private static BackgroundSound backgroundSound;
+    private static TransformGroup ceilingLampTransform;
     
     public static void main(String[] args) {
         try {
             initialize3DEnvironment();
             BranchGroup scene = createScene();
             universe.addBranchGraph(scene);
+            setupPicking();
             startGameLoop();
         } catch (Exception e) {
             System.err.println("Initialization failed: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);
         }
+    }
+    
+    private static void setupPicking() {
+        PickCanvas pickCanvas = new PickCanvas(canvas, universe.getLocale());
+        pickCanvas.setMode(PickTool.GEOMETRY);
+        pickCanvas.setTolerance(4.0f);
+        
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!mouseCaptured) return;
+                
+                pickCanvas.setShapeLocation(e);
+                PickResult[] results = pickCanvas.pickAll();
+                
+                for (PickResult result : results) {
+                    Node node = result.getObject();
+                    if (node != null) {
+                        // Check if we clicked on the ceiling lamp
+                        Node parent = node.getParent();
+                        while (parent != null) {
+                            if (parent == ceilingLampTransform) {
+                                CreateObjects.transformToSphere(ceilingLampTransform);
+                                return;
+                            }
+                            parent = parent.getParent();
+                        }
+                    }
+                }
+            }
+        });
     }
     
     private static void initialize3DEnvironment() throws AWTException {
@@ -68,16 +98,14 @@ public class Main {
         
         // Initialize sound system
         SoundEffects.enableAudio(universe);
-        SoundEffects.playBackgroundSound(SoundEffects.horrorBGSound);
-        SoundEffects.playBackgroundSound(SoundEffects.heartbeatBGSound);
+        
+        customizeTextures();
     }
 
     private static class PlayerControls implements KeyListener, MouseMotionListener {
-
         private final TransformGroup viewTransformGroup;
         private final Transform3D transform = new Transform3D();
         private final Vector3f position = new Vector3f(0.0f, 0.0f, 5.0f);
-
         private float yaw = 0.0f;
         private float pitch = 0.0f;
         
@@ -86,10 +114,6 @@ public class Main {
         private final float verticalSpeed;
         
         private boolean forward, backward, left, right, up, down;
-
-        // NEW: freeze camera movement
-        private boolean frozen = false;
-
         private final Robot robot;
         private final GameCanvas canvas;
         
@@ -121,22 +145,10 @@ public class Main {
                 );
             }
         }
-
-        // NEW: getter & setter for the frozen flag
-        public boolean isFrozen() {
-            return frozen;
-        }
-        public void setFrozen(boolean frozen) {
-            this.frozen = frozen;
-        }
-
+        
         public void update() {
-            // If camera is frozen, skip movement entirely
-            if (frozen) {
-                return;
-            }
-
             Vector3f moveDir = new Vector3f();
+            
             if (forward || backward || left || right) {
                 Vector3f forwardDir = new Vector3f(
                     (float)Math.sin(yaw),
@@ -196,15 +208,8 @@ public class Main {
                 case KeyEvent.VK_A: right = true; break;
                 case KeyEvent.VK_SPACE: up = true; break;
                 case KeyEvent.VK_SHIFT: down = true; break;
-                
-                case KeyEvent.VK_ESCAPE:
+                case KeyEvent.VK_ESCAPE: 
                     mouseCaptured = !mouseCaptured;
-                    centerMouse();
-                    break;
-
-                // NEW: toggle freeze with 'F'
-                case KeyEvent.VK_F:
-                    setFrozen(!isFrozen());
                     centerMouse();
                     break;
             }
@@ -224,8 +229,7 @@ public class Main {
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            // If camera is frozen, ignore mouse movement
-            if (!mouseCaptured || frozen) return;
+            if (!mouseCaptured) return;
             
             Point currentPos = e.getPoint();
             int centerX = canvas.getWidth()/2;
@@ -295,40 +299,34 @@ public class Main {
         
         try {
             CreateObjects creator = new CreateObjects();
+            
+            // Create all scene objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
-            scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.2), 0.2));
-            scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, 0.1), 0.3));
+            scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.4), 0.3));
+            scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, -0.4), 0.3));
             scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
-            scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(0.298, -0.2, -0.8), 0.9));
-            scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.4, -0.2, 0.3), 0.5));
+            scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(0.2, -0.2, -0.8), 0.8));
+            scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.39, -0.21, 0.48), 0.58));
             scene.addChild(creator.createObject("Window_Casement_Frame", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3.5, 1, 0), 1.0));
             scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
-            scene.addChild(creator.createObject("Wall_light_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.18, 0.2, 0.4), 0.7));
-            scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.18, 0.2, 0.3), 0.7));
-            scene.addChild(creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06));
+            scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.21, 0.15, 0.45), 0.79));
+            
+            // Store reference to ceiling lamp transform
+            ceilingLampTransform = creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06);
+            scene.addChild(ceilingLampTransform);
+            
             scene.addChild(creator.createObject("Paper", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.7, -0.1, 0.6), 0.2));
-            scene.addChild(creator.createObject("SwitchMain", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.3), 0.2));
-            scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.3), 0.2));
+            scene.addChild(creator.createObject("SwitchMain", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.42), 0.4));
+            scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.42), 0.4));
             scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.7, -0.3, 0.1), 0.2));
             scene.addChild(creator.createObject("Lockers_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0.5, 1.5), 0.5));
-
-            // Crosses
             scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
             scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
             scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
             scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
             scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
-
-            // *** Insert the MazePanel "screen" with bigger size ***
-            add2DMazeToScene(scene);
-//crosses
-                scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
-                scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
-                scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
-                scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
-                scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
 
         } catch (Exception e) {
             System.err.println("Error creating scene objects: " + e.getMessage());
@@ -338,86 +336,7 @@ public class Main {
         scene.addChild(createEnhancedLights());
         return scene;
     }
-
-    /**
-     * Create a large MazePanel (800×600), place it on a bigger box, and add to the scene.
-     */
-    private static void add2DMazeToScene(BranchGroup scene) {
-        // A) Instantiate your MazePanel
-        MazePanel myMazePanel = new MazePanel(); 
-
-        // B) Render MazePanel to a larger BufferedImage
-        int width = 500;  // bigger resolution
-        int height = 200;
-        BufferedImage mazeImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = mazeImage.createGraphics();
-        myMazePanel.setSize(width, height); 
-        myMazePanel.paint(g2d);
-        g2d.dispose();
-
-        // C) Convert that BufferedImage into a Java3D Appearance
-        Appearance mazeAppearance = createAppearanceFromImage(mazeImage);
-
-        // D) Create a bigger Box with a matching 4:3 ratio
-        //    e.g. 1.0m wide x 0.75m tall
-        float wallWidth  = 1.0f;   
-        float wallHeight = 0.75f;
-        Vector3d position = new Vector3d(0.8, 0.0, -0.2);
-        AxisAngle4d rotation = new AxisAngle4d(0, 1, 0, Math.PI / 2); // rotate 90° around Y
-
-        Box mazeWall = new Box(
-            wallWidth / 2,
-            wallHeight / 2,
-            0.001f,
-            Box.GENERATE_TEXTURE_COORDS,
-            mazeAppearance
-        );
-
-        Transform3D transform = new Transform3D();
-        transform.setRotation(rotation);
-        transform.setTranslation(position);
-
-        TransformGroup tg = new TransformGroup(transform);
-        tg.addChild(mazeWall);
-        scene.addChild(tg);
-    }
-
-    /**
-     * Converts a BufferedImage to a textured Appearance for Java3D.
-     */
-    private static Appearance createAppearanceFromImage(BufferedImage image) {
-        org.jogamp.java3d.utils.image.TextureLoader loader =
-            new org.jogamp.java3d.utils.image.TextureLoader(image, "RGBA", null);
-        Texture texture = loader.getTexture();
-        if (texture == null) {
-            // fallback
-            return new Appearance();
-        }
-
-        texture.setBoundaryModeS(Texture.WRAP);
-        texture.setBoundaryModeT(Texture.WRAP);
-        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-
-        Material mat = new Material();
-        mat.setAmbientColor(0.5f, 0.5f, 0.5f);
-        mat.setDiffuseColor(1f, 1f, 1f);
-        mat.setSpecularColor(0.2f, 0.2f, 0.2f);
-        mat.setShininess(32f);
-        mat.setLightingEnable(true);
-
-        TextureAttributes texAttr = new TextureAttributes();
-        texAttr.setTextureMode(TextureAttributes.MODULATE);
-
-        Appearance appearance = new Appearance();
-        appearance.setMaterial(mat);
-        appearance.setTexture(texture);
-        appearance.setTextureAttributes(texAttr);
-
-        return appearance;
-    }
     
-    // ----------------- Error / Lights / Game Loop (unchanged) -----------------
     private static BranchGroup createErrorScene() {
         BranchGroup errorScene = new BranchGroup();
         Appearance app = new Appearance();
