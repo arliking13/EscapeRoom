@@ -131,10 +131,13 @@ public class Main {
                                 if (tg.getUserData() != null) {
                                     String objName = (String)tg.getUserData();
                                     if (objName.equals("Door")) {
-                                        SoundEffects.playSound(SoundEffects.doorBGSound);
+                                    	SoundEffects soundMan = new SoundEffects(); // Create an instance
+                                        String fnm = "Door_Open"; // Ensure this matches the loaded sound name
+                                        if (soundMan.load(fnm, false)) { // Load the sound first
+                                            soundMan.play(fnm); // Play the sound
+                                        }
                                         return;
                                     } else if (objName.equals("Cross_middle")) {
-                                        SoundEffects.playSound(SoundEffects.crossRotationSound);
                                         return;
                                     }
                                 }
@@ -168,10 +171,7 @@ public class Main {
             MOVEMENT_SPEED,
             VERTICAL_SPEED
         );
-        
-        // Initialize sound system
-        SoundEffects.enableAudio(universe);
-        
+                
         customizeTextures();
     }
 
@@ -449,8 +449,12 @@ public class Main {
         if (escaped) {
             canvas.setVisible(true);
             showWinScreen();
-            SoundEffects.playSound(SoundEffects.correctPinBGSound);
-        }
+            SoundEffects soundMan = new SoundEffects(); // Create an instance
+            String fnm = "Door_Open"; // Ensure this matches the loaded sound name
+            if (soundMan.load(fnm, false)) { // Load the sound first
+                soundMan.play(fnm); // Play the sound
+            }        
+         }
     }
 
     // Add this new method
