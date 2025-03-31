@@ -12,15 +12,13 @@ import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
-<<<<<<< HEAD
 import javax.swing.JFrame;
 
-// 1) Import your MazePanel:
+
+
+// Import your MazePanel
 import maze2d.MazePanel;
 
-=======
-//updated main
->>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom
 public class Main {
     // Sensitivity controls
     private static final float MOUSE_SENSITIVITY = 0.0008f;
@@ -75,9 +73,11 @@ public class Main {
 
     // ------------------------------ Player Controls ------------------------------
     private static class PlayerControls implements KeyListener, MouseMotionListener {
+
         private final TransformGroup viewTransformGroup;
         private final Transform3D transform = new Transform3D();
         private final Vector3f position = new Vector3f(0.0f, 0.0f, 5.0f);
+
         private float yaw = 0.0f;
         private float pitch = 0.0f;
         
@@ -86,6 +86,10 @@ public class Main {
         private final float verticalSpeed;
         
         private boolean forward, backward, left, right, up, down;
+
+        // NEW: freeze camera movement
+        private boolean frozen = false;
+
         private final Robot robot;
         private final GameCanvas canvas;
         
@@ -117,11 +121,24 @@ public class Main {
                 );
             }
         }
-        
+
+        // NEW: getter & setter for the frozen flag
+        public boolean isFrozen() {
+            return frozen;
+        }
+        public void setFrozen(boolean frozen) {
+            this.frozen = frozen;
+        }
+
         public void update() {
+            // If camera is frozen, skip movement entirely
+            if (frozen) {
+                return;
+            }
+
             Vector3f moveDir = new Vector3f();
             
-            // Movement (WASD or SHIFT/SPACE for up/down)
+            // WASD movement
             if (forward || backward || left || right) {
                 Vector3f forwardDir = new Vector3f(
                     (float)Math.sin(yaw),
@@ -181,8 +198,15 @@ public class Main {
                 case KeyEvent.VK_A: right = true; break;
                 case KeyEvent.VK_SPACE: up = true; break;
                 case KeyEvent.VK_SHIFT: down = true; break;
-                case KeyEvent.VK_ESCAPE: 
+                
+                case KeyEvent.VK_ESCAPE:
                     mouseCaptured = !mouseCaptured;
+                    centerMouse();
+                    break;
+
+                // NEW: toggle freeze with 'F'
+                case KeyEvent.VK_F:
+                    setFrozen(!isFrozen());
                     centerMouse();
                     break;
             }
@@ -202,7 +226,8 @@ public class Main {
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            if (!mouseCaptured) return;
+            // If camera is frozen, ignore mouse movement
+            if (!mouseCaptured || frozen) return;
             
             Point currentPos = e.getPoint();
             int centerX = canvas.getWidth()/2;
@@ -277,7 +302,7 @@ public class Main {
         try {
             CreateObjects creator = new CreateObjects();
             
-            // 1) Load your 3D "room3" + objects
+            // Load your 3D "room3" + objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.2), 0.2));
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, 0.1), 0.3));
@@ -304,7 +329,7 @@ public class Main {
             scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
             scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
 
-            // 2) Insert the MazePanel "screen" somewhere in the room:
+            // *** Insert the MazePanel "screen" with bigger size ***
             add2DMazeToScene(scene);
 
         } catch (Exception e) {
@@ -317,34 +342,35 @@ public class Main {
     }
 
     /**
-     * Create a thin "screen" that displays the 2D MazePanel, and add it to the scene.
+     * Create a large MazePanel (800×600), place it on a bigger box, and add to the scene.
      */
     private static void add2DMazeToScene(BranchGroup scene) {
         // A) Instantiate your MazePanel
-        MazePanel myMazePanel = new MazePanel(); // no args constructor
+        MazePanel myMazePanel = new MazePanel(); 
 
-        // B) Render MazePanel to BufferedImage
-        int width = 400;
-        int height = 300;
+        // B) Render MazePanel to a larger BufferedImage
+        int width = 500;  // bigger resolution
+        int height = 200;
         BufferedImage mazeImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = mazeImage.createGraphics();
-        myMazePanel.setSize(width, height);
+        myMazePanel.setSize(width, height); 
         myMazePanel.paint(g2d);
         g2d.dispose();
 
-        // C) Convert that BufferedImage into a Java3D Appearance (texture)
+        // C) Convert that BufferedImage into a Java3D Appearance
         Appearance mazeAppearance = createAppearanceFromImage(mazeImage);
 
-        // D) Create a thin Box with that texture + position it on the wall
-        float wallWidth  = 0.5f;  // 0.5 meters wide in 3D space
-        float wallHeight = 0.375f; // ratio of 4:3 
-        Vector3d position = new Vector3d(0.7, -0.1, 0.6);  // pick any coords that make sense
-        AxisAngle4d rotation = new AxisAngle4d(0, 1, 0, Math.PI / 2); // 90° about Y
+        // D) Create a bigger Box with a matching 4:3 ratio
+        //    e.g. 1.0m wide x 0.75m tall
+        float wallWidth  = 1.0f;   
+        float wallHeight = 0.75f;
+        Vector3d position = new Vector3d(0.8, 0.0, -0.2);
+        AxisAngle4d rotation = new AxisAngle4d(0, 1, 0, Math.PI / 2); // rotate 90° around Y
 
         Box mazeWall = new Box(
             wallWidth / 2,
             wallHeight / 2,
-            0.001f,  // thin depth
+            0.001f,
             Box.GENERATE_TEXTURE_COORDS,
             mazeAppearance
         );
@@ -355,7 +381,6 @@ public class Main {
 
         TransformGroup tg = new TransformGroup(transform);
         tg.addChild(mazeWall);
-
         scene.addChild(tg);
     }
 
@@ -394,6 +419,7 @@ public class Main {
         return appearance;
     }
     
+    // ----------------- Error / Lights / Game Loop (unchanged) -----------------
     private static BranchGroup createErrorScene() {
         BranchGroup errorScene = new BranchGroup();
         Appearance app = new Appearance();
