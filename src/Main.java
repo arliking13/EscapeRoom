@@ -1,5 +1,6 @@
 import org.jogamp.java3d.*;
 import org.jogamp.java3d.utils.geometry.Box;
+import org.jogamp.java3d.utils.geometry.Sphere;
 import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
 import java.awt.BorderLayout;
@@ -12,6 +13,9 @@ import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
+import org.jogamp.java3d.utils.picking.PickTool;
+import org.jogamp.java3d.utils.picking.PickResult;
+import org.jogamp.java3d.utils.picking.PickCanvas;
 
 public class Main {
     // Sensitivity controls
@@ -23,18 +27,51 @@ public class Main {
     private static boolean mouseCaptured = true;
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
+    private static TransformGroup ceilingLampTransform;
     
     public static void main(String[] args) {
         try {
             initialize3DEnvironment();
             BranchGroup scene = createScene();
             universe.addBranchGraph(scene);
+            setupPicking();
             startGameLoop();
         } catch (Exception e) {
             System.err.println("Initialization failed: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);
         }
+    }
+    
+    private static void setupPicking() {
+        PickCanvas pickCanvas = new PickCanvas(canvas, universe.getLocale());
+        pickCanvas.setMode(PickTool.GEOMETRY);
+        pickCanvas.setTolerance(4.0f);
+        
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!mouseCaptured) return;
+                
+                pickCanvas.setShapeLocation(e);
+                PickResult[] results = pickCanvas.pickAll();
+                
+                for (PickResult result : results) {
+                    Node node = result.getObject();
+                    if (node != null) {
+                        // Check if we clicked on the ceiling lamp
+                        Node parent = node.getParent();
+                        while (parent != null) {
+                            if (parent == ceilingLampTransform) {
+                                CreateObjects.transformToSphere(ceilingLampTransform);
+                                return;
+                            }
+                            parent = parent.getParent();
+                        }
+                    }
+                }
+            }
+        });
     }
     
     private static void initialize3DEnvironment() throws AWTException {
@@ -268,27 +305,23 @@ public class Main {
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.4), 0.3));
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, -0.4), 0.3));
             scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
-            
-            //change
             scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(0.2, -0.2, -0.8), 0.8));
-            
-            
             scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.39, -0.21, 0.48), 0.58));
             scene.addChild(creator.createObject("Window_Casement_Frame", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3.5, 1, 0), 1.0));
             scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
             scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.21, 0.15, 0.45), 0.79));
-            scene.addChild(creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06));
+            
+            // Store reference to ceiling lamp transform
+            ceilingLampTransform = creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06);
+            scene.addChild(ceilingLampTransform);
+            
             scene.addChild(creator.createObject("Paper", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.7, -0.1, 0.6), 0.2));
-            
-            
-            
             scene.addChild(creator.createObject("SwitchMain", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.42), 0.4));
             scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.42), 0.4));
             scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.7, -0.3, 0.1), 0.2));
             scene.addChild(creator.createObject("Lockers_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0.5, 1.5), 0.5));
-            
             scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
             scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
             scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
@@ -303,8 +336,6 @@ public class Main {
         scene.addChild(createEnhancedLights());
         return scene;
     }
-    
-    
     
     private static BranchGroup createErrorScene() {
         BranchGroup errorScene = new BranchGroup();
