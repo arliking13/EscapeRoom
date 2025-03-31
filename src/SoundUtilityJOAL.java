@@ -1,5 +1,3 @@
-
-
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,7 +10,7 @@ import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.util.ALut;
 
 public class SoundUtilityJOAL {
-	private final static String SOUND_DIR = "sounds/";
+	private final static String SOUND_DIR = "C:/Users/vansh/git/EscapeRoom/sounds/";
 	// where the WAV files are located
 
 	private AL al; // to access the JOAL API
@@ -28,7 +26,7 @@ public class SoundUtilityJOAL {
 	// anti-clockwise rotation anyway from -z axis
 
 	public static void main(String[] args) {  // cow ocean
-		String soundName = "ocean";
+		String soundName = "Door_Open";
 		                    // the listener is at (0,0,0) facing along the -z axis
 		SoundUtilityJOAL soundMan = new SoundUtilityJOAL();
 		soundMan.moveListener(0, 0.25f);      // place the listener at (0,0,0.25) now
@@ -112,16 +110,18 @@ public class SoundUtilityJOAL {
 
 	/* function to create a buffer for the named (without ".wav") sound */
 	private int[] initBuffer(String nm) {
-		ByteBuffer[] data = new ByteBuffer[1];  // create arrays to hold WAV file info
-		int[] format = new int[1], size = new int[1], freq = new int[1], loop = new int[1];
+	    ByteBuffer[] data = new ByteBuffer[1];
+	    int[] format = new int[1], size = new int[1], freq = new int[1], loop = new int[1];
 
-		String fnm = SOUND_DIR + nm + ".wav";
-		try {                               // load WAV file into data array first
-			ALut.alutLoadWAVFile(fnm, format, data, size, freq, loop);
-		} catch (ALException e) {
-			System.out.println("Error loading WAV file: " + fnm);
-			return null;
-		}
+	    String fnm = SOUND_DIR + nm + ".wav";
+	    System.out.println("Attempting to load sound file from: " + new java.io.File(fnm).getAbsolutePath());
+	    
+	    try {
+	        ALut.alutLoadWAVFile(fnm, format, data, size, freq, loop);
+	    } catch (ALException e) {
+	        System.out.println("Error loading WAV file: " + fnm + " - " + e.getMessage());
+	        return null;
+	    }
 		int[] buffer = new int[1];  // create an empty buffer to hold the sound data
 		al.alGenBuffers(1, buffer, 0);     // initialize the buffer with loaded data
 		if (al.alGetError() != ALConstants.AL_NO_ERROR) {

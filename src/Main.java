@@ -3,6 +3,7 @@ import org.jogamp.java3d.utils.geometry.Box;
 import org.jogamp.java3d.utils.geometry.Sphere;
 import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
@@ -28,6 +29,7 @@ public class Main {
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
     private static TransformGroup ceilingLampTransform;
+    private static SoundUtilityJOAL soundJOAL;
     
     public static void main(String[] args) {
         try {
@@ -72,7 +74,7 @@ public class Main {
                                 if (tg.getUserData() != null) {
                                     String objName = (String)tg.getUserData();
                                     if (objName.equals("Door")) {
-                                        SoundEffects.playSound(SoundEffects.doorBGSound);
+                                        SoundEffects.playJOALSound("Door_Open"); // Use JOAL for door sound
                                         return;
                                     } else if (objName.equals("Cross_middle")) {
                                         SoundEffects.playSound(SoundEffects.crossRotationSound);

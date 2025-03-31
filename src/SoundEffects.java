@@ -12,6 +12,9 @@ public class SoundEffects {
     // Sound file extensions - modify according to your actual file types
     private static final String SOUND_EXTENSION = ".wav";
     
+    // SoundUtilityJOAL instance
+    private static SoundUtilityJOAL soundUtility = new SoundUtilityJOAL();
+    
     // Sound instances with proper initialization
     public static BackgroundSound horrorBGSound;
     public static PointSound doorBGSound;
@@ -28,6 +31,9 @@ public class SoundEffects {
         wrongPinBGSound = createPointSound("Error_Sound");
         heartbeatBGSound = createBackgroundSound("Heartbeat");
         crossRotationSound = createPointSound("Success_Sound");
+        
+        // Load sounds in SoundUtilityJOAL
+        soundUtility.load("Door_Open", false);
     }
     
     public static void playSound(BackgroundSound sound) {
@@ -53,12 +59,17 @@ public class SoundEffects {
             baseFilename + SOUND_EXTENSION,
             baseFilename,
             "sounds/" + baseFilename + SOUND_EXTENSION,
-            "sounds/" + baseFilename
+            "sounds/" + baseFilename,
+            "./sounds/" + baseFilename + SOUND_EXTENSION,
+            "C:/Users/vansh/git/EscapeRoom/sounds/" + baseFilename + SOUND_EXTENSION
         };
+        
+        System.out.println("Current working directory: " + new java.io.File(".").getAbsolutePath());
         
         for (String filename : filenameVariants) {
             // Try classpath first
-            URL url = SoundEffects.class.getResource("/" + filename);
+            URL url = SoundEffects.class.getResource("C:/Users/vansh/git/EscapeRoom/sounds" + filename);
+            System.out.println("Checking classpath for: /" + filename);
             if (url != null) {
                 System.out.println("Found sound at: " + url);
                 return url;
@@ -66,7 +77,8 @@ public class SoundEffects {
             
             // Try filesystem
             try {
-                File file = new File(filename);
+                java.io.File file = new java.io.File(filename);
+                System.out.println("Checking filesystem for: " + file.getAbsolutePath());
                 if (file.exists()) {
                     System.out.println("Found sound at: " + file.getAbsolutePath());
                     return file.toURI().toURL();
@@ -197,5 +209,10 @@ public class SoundEffects {
         } else {
             System.err.println("Cannot stop null BackgroundSound");
         }
+    }
+    
+    // New method to play sound using SoundUtilityJOAL
+    public static void playJOALSound(String soundName) {
+        soundUtility.play(soundName);
     }
 }
