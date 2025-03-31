@@ -15,22 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MazePanel extends JPanel implements KeyListener {
-
-    // Maze dimensions
     private static final int ROWS = 20;
     private static final int COLS = 25;
     private static final int TILE_SIZE = 32;
-
-    // Extra HUD space at the bottom
     private static final int HUD_HEIGHT = 64;
-
-    // Font for drawing emojis
     private static final Font FONT = new Font("Monospaced", Font.BOLD, 24);
 
-    // Maze tile definitions
-    // 1=Wall, 2=Key, 3=Exit, 4=Trap, 5=LockedDoor
     private int[][] mazeData = {
-        // same data as before
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1},
         {1,0,1,1,1,1,1,1,1,0,0,0,0,0,1,0,1,1,1,1,1,1,1,0,1},
@@ -53,15 +44,10 @@ public class MazePanel extends JPanel implements KeyListener {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
 
-    // We define "startRow" and "startCol" so resetPlayer() can use them
     private final int startRow = 1;
     private final int startCol = 1;
-
-    // Player & Enemies
     private Player player;
     private List<Enemy> enemies;
-
-    // Animation
     private int animationFrame = 0;
 
     public MazePanel() {
@@ -69,9 +55,7 @@ public class MazePanel extends JPanel implements KeyListener {
         setPreferredSize(new Dimension(COLS * TILE_SIZE, totalHeight));
         setBackground(Color.BLACK);
 
-        // Create the Player at row=1, col=1
         player = new Player(startRow, startCol);
-
         enemies = new ArrayList<>();
         enemies.add(new Enemy(3, 9));
         enemies.add(new Enemy(7, 3));
@@ -80,12 +64,10 @@ public class MazePanel extends JPanel implements KeyListener {
         addKeyListener(this);
         setFocusable(true);
 
-        // Timer for toggling animation frames every 300ms
         new Timer(300, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 animationFrame = (animationFrame + 1) % 2;
-                // update player's celebration timer
                 player.updateAnimation();
                 repaint();
             }
@@ -95,7 +77,6 @@ public class MazePanel extends JPanel implements KeyListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         g.setFont(FONT);
         FontMetrics fm = g.getFontMetrics();
         int maxCharWidth = Emotes.measureMaxEmojiWidth(fm);
@@ -103,12 +84,10 @@ public class MazePanel extends JPanel implements KeyListener {
         drawMaze(g, fm, maxCharWidth);
         drawEnemies(g, fm, maxCharWidth);
 
-        // if not won
         if (!player.hasWon()) {
             drawPlayer(g, fm, maxCharWidth);
         }
 
-        // top-left HUD
         g.setColor(Color.WHITE);
         g.drawString("Health: " + player.getHealth(), 10, 20);
         g.drawString("Key: " + (player.hasKey() ? "Yes" : "No"), 10, 40);
@@ -120,10 +99,7 @@ public class MazePanel extends JPanel implements KeyListener {
             g.drawString("Close this window if you dare.", TILE_SIZE * 5, TILE_SIZE * 10);
         }
 
-        // draw small status box in bottom-left
         drawStatusBox(g, fm, maxCharWidth);
-
-        // optional "doom face" in bottom center
         drawDoomHUD(g, fm, maxCharWidth);
     }
 
@@ -185,7 +161,6 @@ public class MazePanel extends JPanel implements KeyListener {
         int charHeight = fm.getAscent();
         boolean nearEnemy = isNearEnemy(2.0);
 
-        // get player's current frame
         String playerEmoji = player.getCurrentFrame(animationFrame, nearEnemy);
 
         int x = player.getCol() * TILE_SIZE;
@@ -206,7 +181,7 @@ public class MazePanel extends JPanel implements KeyListener {
     private void drawStatusBox(Graphics g, FontMetrics fm, int charWidth) {
         int boxSize = 64;
         int x = 0;
-        int y = ROWS * TILE_SIZE; // bottom of the maze
+        int y = ROWS * TILE_SIZE;
 
         g.setColor(Color.DARK_GRAY);
         g.fillRect(x, y, boxSize, boxSize);
@@ -229,14 +204,10 @@ public class MazePanel extends JPanel implements KeyListener {
         int hudY = ROWS * TILE_SIZE + 10;
         boolean nearEnemy = isNearEnemy(2.0);
 
-        // pick doom face
         String[] doomFrames = player.pickDoomFace(nearEnemy);
         String doomFace = doomFrames[animationFrame];
-
-        // show key if we have it
         String keyIcon = player.hasKey() ? "🔑" : " ";
 
-        // background
         g.setColor(Color.DARK_GRAY);
         g.fillRect(0, ROWS*TILE_SIZE, COLS*TILE_SIZE, HUD_HEIGHT);
 
@@ -270,8 +241,6 @@ public class MazePanel extends JPanel implements KeyListener {
         return Math.sqrt(dr*dr + dc*dc);
     }
 
-    // Movement / KeyListener
-
     @Override
     public void keyPressed(KeyEvent e) {
         if (player.hasWon()) return;
@@ -299,9 +268,8 @@ public class MazePanel extends JPanel implements KeyListener {
 
         int tile = mazeData[newRow][newCol];
         if (tile == 2) {
-            // pick up key
             player.setHasKey(true);
-            player.triggerKeyCelebration(); // "funny" frames
+            player.triggerKeyCelebration();
             mazeData[newRow][newCol] = 0;
         } else if (tile == 3) {
             if (player.hasKey()) {
@@ -321,10 +289,10 @@ public class MazePanel extends JPanel implements KeyListener {
     private boolean validMove(int r, int c) {
         if (r<0 || r>=ROWS || c<0 || c>=COLS) return false;
         int tile = mazeData[r][c];
-        if (tile==1) return false; // wall
-        if (tile==5 && !player.hasKey()) return false; // locked door
+        if (tile==1) return false;
+        if (tile==5 && !player.hasKey()) return false;
         if (tile==5 && player.hasKey()) {
-            mazeData[r][c] = 0; // unlock
+            mazeData[r][c] = 0;
         }
         return true;
     }
@@ -333,7 +301,6 @@ public class MazePanel extends JPanel implements KeyListener {
         for (Enemy e : enemies) {
             moveEnemy(e);
         }
-        // check collisions
         for (Enemy e : enemies) {
             if (!player.hasWon() && e.row == player.getRow() && e.col == player.getCol()) {
                 player.decrementHealth();
@@ -368,17 +335,15 @@ public class MazePanel extends JPanel implements KeyListener {
     private void tryMove(Enemy e, int nr, int nc) {
         if (nr<0||nr>=ROWS||nc<0||nc>=COLS) return;
         int tile = mazeData[nr][nc];
-        if (tile==1||tile==5) return; // blocked
+        if (tile==1||tile==5) return;
         e.row = nr;
         e.col = nc;
     }
 
     private void resetPlayer() {
-        // Fix: use our defined startRow & startCol
         player.setRow(startRow);
         player.setCol(startCol);
         player.setHealth(3);
-        // keep key & door states
     }
 
     @Override public void keyReleased(KeyEvent e) {}

@@ -29,7 +29,6 @@ public class Main {
     private static boolean mouseCaptured = true;
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
-    private static BackgroundSound backgroundSound;
     
     public static void main(String[] args) {
         try {
@@ -68,8 +67,8 @@ public class Main {
         
         // Initialize sound system
         SoundEffects.enableAudio(universe);
-        SoundEffects.playBackgroundSound(SoundEffects.horrorBGSound);
-        SoundEffects.playBackgroundSound(SoundEffects.heartbeatBGSound);
+        
+        customizeTextures();
     }
 
     private static class PlayerControls implements KeyListener, MouseMotionListener {
@@ -137,6 +136,8 @@ public class Main {
             }
 
             Vector3f moveDir = new Vector3f();
+            
+
             if (forward || backward || left || right) {
                 Vector3f forwardDir = new Vector3f(
                     (float)Math.sin(yaw),
