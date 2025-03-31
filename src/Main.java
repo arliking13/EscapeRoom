@@ -23,6 +23,7 @@ public class Main {
     private static boolean mouseCaptured = true;
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
+    private static BackgroundSound backgroundSound;
     
     public static void main(String[] args) {
         try {
@@ -61,8 +62,8 @@ public class Main {
         
         // Initialize sound system
         SoundEffects.enableAudio(universe);
-        
-        customizeTextures();
+        SoundEffects.playBackgroundSound(SoundEffects.horrorBGSound);
+        SoundEffects.playBackgroundSound(SoundEffects.heartbeatBGSound);
     }
 
     private static class PlayerControls implements KeyListener, MouseMotionListener {
