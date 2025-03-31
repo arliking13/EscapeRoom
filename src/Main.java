@@ -125,6 +125,20 @@ public class Main {
                                 CreateObjects.transformToSphere(ceilingLampTransform);
                                 return;
                             }
+                            // Check for Door or Cross_middle click
+                            if (parent instanceof TransformGroup) {
+                                TransformGroup tg = (TransformGroup)parent;
+                                if (tg.getUserData() != null) {
+                                    String objName = (String)tg.getUserData();
+                                    if (objName.equals("Door")) {
+                                        SoundEffects.playSound(SoundEffects.doorBGSound);
+                                        return;
+                                    } else if (objName.equals("Cross_middle")) {
+                                        SoundEffects.playSound(SoundEffects.crossRotationSound);
+                                        return;
+                                    }
+                                }
+                            }
                             parent = parent.getParent();
                         }
                     }
@@ -319,7 +333,6 @@ public class Main {
         LoadObject.setObjectTexture("Desk", "TreeLogEdgeWeathered.jpg");
         LoadObject.setObjectTexture("Door", "Door.jpg");
         LoadObject.setObjectTexture("Escape_door", "Door.jpg");
-        LoadObject.setObjectTexture("KeypadDoorLock", "KeypadDoorLockAlbedo.jpg");
         LoadObject.setObjectTexture("Locker", "Blue_locker.jpg");
         LoadObject.setObjectTexture("Lockers_door", "rust_walls.jpg");
         LoadObject.setObjectTexture("Paper", "paper.jpg");
@@ -330,7 +343,6 @@ public class Main {
         LoadObject.setObjectTexture("The_rightmost_cross", "Door_Wood_Dif.jpg");
         LoadObject.setObjectTexture("Wall_light_left", "rust_walls.jpg");
         LoadObject.setObjectTexture("Wall_light_right", "rust_walls.jpg");
-        LoadObject.setObjectTexture("Window_Casement_Frame", "Door_Wood_Dif.jpg");
     }
     
     private static void configureViewingPlatform() {
@@ -374,13 +386,17 @@ public class Main {
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.4), 0.3));
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, -0.4), 0.3));
             scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
-            scene.addChild(creator.createObject("Door", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(0.2, -0.2, -0.8), 0.8));
-            scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.39, -0.21, 0.48), 0.58));
-            scene.addChild(creator.createObject("Window_Casement_Frame", new AxisAngle4d(0, 1, 0, 0), new Vector3d(3.5, 1, 0), 1.0));
+            
+            // Door with user data for sound
+            TransformGroup door = creator.createObject("Door", new AxisAngle4d(0, 1, 0, Math.PI/2), new Vector3d(0.2, -0.2, -0.8), 0.8);
+            door.setUserData("Door");
+            scene.addChild(door);
+            
+            scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.40, -0.215, 0.49), 0.55));
             scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
-            scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.21, 0.15, 0.45), 0.79));
+            scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0., 0.15, 0.45), 0.79));
             
             //store reference of the escape door
             escapeDoor = creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.4, -0.2, 0.3), 0.5);
@@ -394,11 +410,15 @@ public class Main {
             scene.addChild(creator.createObject("Paper", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.7, -0.1, 0.6), 0.2));
             scene.addChild(creator.createObject("SwitchMain", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.42), 0.4));
             scene.addChild(creator.createObject("SwitchHandle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.1, -0.15, -0.42), 0.4));
-            scene.addChild(creator.createObject("KeypadDoorLock", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.7, -0.3, 0.1), 0.2));
             scene.addChild(creator.createObject("Lockers_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-2, 0.5, 1.5), 0.5));
             scene.addChild(creator.createObject("The_leftmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.09, -0.23), 0.25));
             scene.addChild(creator.createObject("Cross_left", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.03, -0.19), 0.17));
-            scene.addChild(creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09));
+            
+            // Middle cross with user data for sound
+            TransformGroup middleCross = creator.createObject("Cross_middle", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, -0.14), 0.09);
+            middleCross.setUserData("Cross_middle");
+            scene.addChild(middleCross);
+            
             scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, 0.025, -0.039), 0.07));
             scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.95, -0.08, 0.13), 0.07));
 
@@ -491,6 +511,5 @@ public class Main {
                 }
             }
         }).start();
-    }
     }
 }
