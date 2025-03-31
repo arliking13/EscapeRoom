@@ -4,27 +4,18 @@ import org.jogamp.java3d.utils.geometry.Sphere;
 import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 import java.awt.event.*;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
-import java.util.Iterator;
-
 import org.jogamp.java3d.utils.picking.PickTool;
 import org.jogamp.java3d.utils.picking.PickResult;
 import org.jogamp.java3d.utils.picking.PickCanvas;
-import javax.media.j3d.Behavior;
-import javax.media.j3d.WakeupOnCollisionEntry;
-import javax.media.j3d.WakeupCriterion;
 
 public class Main {
     // Sensitivity controls
@@ -38,17 +29,11 @@ public class Main {
     private static SimpleUniverse universe;
     private static TransformGroup ceilingLampTransform;
     
-    //game mechanics
-    private static TransformGroup escapeDoor;
-    private static TransformGroup playerTransformGroup;
-    private static boolean gameEnded = false;
-    
     public static void main(String[] args) {
         try {
             initialize3DEnvironment();
             BranchGroup scene = createScene();
             universe.addBranchGraph(scene);
-            setupCollisionDetection();
             setupPicking();
             startGameLoop();
         } catch (Exception e) {
@@ -56,50 +41,6 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-    
-    private static void setupCollisionDetection() {
-        // Create collision behavior
-        Behavior collisionBehavior = new Behavior() {
-            private WakeupOnCollisionEntry collisionTrigger;
-            
-            @Override
-            public void initialize() {
-                // Set up collision between player and escape door
-                collisionTrigger = new WakeupOnCollisionEntry(
-                    playerTransformGroup, 
-                    WakeupOnCollisionEntry.USE_GEOMETRY
-                );
-                wakeupOn(collisionTrigger);
-            }
-            
-            public void processStimulus(Enumeration criteria) {
-                // Check if collision is with escape door
-                WakeupCriterion criterion = (WakeupCriterion)criteria.nextElement();
-                if (criterion instanceof WakeupOnCollisionEntry) {
-                    if (!gameEnded) {
-                        endGame(true);
-                        gameEnded = true;
-                    }
-                }
-                // Set up next trigger
-                wakeupOn(collisionTrigger);
-            }
-
-			@Override
-			public void processStimulus(Iterator<org.jogamp.java3d.WakeupCriterion> arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-        };
-        
-        BranchGroup behaviorBranch = new BranchGroup();
-        behaviorBranch.addChild(collisionBehavior);
-        behaviorBranch.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-        collisionBehavior.setSchedulingBounds(new BoundingSphere(new Point3d(), 100.0));
-        
-        // Add to your main scene (not universe.getLocale())
-        universe.getBranchGroup().addChild(behaviorBranch);    
     }
     
     private static void setupPicking() {
@@ -371,16 +312,6 @@ public class Main {
         try {
             CreateObjects creator = new CreateObjects();
             
-            // Create player transform group (modified)
-            playerTransformGroup = new TransformGroup();
-            playerTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-            playerTransformGroup.setCapability(TransformGroup.ENABLE_COLLISION_REPORTING);
-            
-            // Add player geometry to playerTransformGroup
-            // (You might need to modify this based on your actual player setup)
-            playerTransformGroup.addChild(createPlayerGeometry());
-            scene.addChild(playerTransformGroup);
-            
             // Create all scene objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.4), 0.3));
@@ -396,13 +327,8 @@ public class Main {
             scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
-            scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0., 0.15, 0.45), 0.79));
+            scene.addChild(creator.createObject("Wall_light_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.16, 0.15, 0.45), 0.79));
             
-            //store reference of the escape door
-            escapeDoor = creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.4, -0.2, 0.3), 0.5);
-            escapeDoor.setCapability(BranchGroup.ENABLE_COLLISION_REPORTING);
-            scene.addChild(escapeDoor);
-                
             // Store reference to ceiling lamp transform
             ceilingLampTransform = creator.createObject("Ceiling_lamp", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.25, 0.3), 0.06);
             scene.addChild(ceilingLampTransform);
