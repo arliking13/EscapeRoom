@@ -1,14 +1,11 @@
-import java.net.URL;
-import org.jogamp.java3d.*;
-import org.jogamp.java3d.utils.universe.SimpleUniverse;
-import org.jogamp.java3d.utils.universe.Viewer;
-import org.jogamp.vecmath.Point3d;
-import javax.swing.Timer;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.awt.event.ActionEvent;
+// SoundEffects.java
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import com.jogamp.openal.*;
+import com.jogamp.openal.util.ALut;
 
 public class SoundEffects {
+<<<<<<< HEAD
     // Sound file extensions - modify according to your actual file types
     private static final String SOUND_EXTENSION = ".wav";
     
@@ -181,38 +178,131 @@ public class SoundEffects {
                     System.err.println("Sound thread interrupted");
                 }
             }).start();
+=======
+    private static final String SOUND_DIR = "sounds/";
+    private static SoundEffects instance;
+    private AL al;
+    private HashMap<String, int[]> buffersMap = new HashMap<>();
+    private HashMap<String, int[]> sourcesMap = new HashMap<>();
+
+    public static void load(String name, boolean loop) {
+        if (get().loadInternal(name, loop)) {
+            System.out.println("✅ Sound loaded: " + name);
+>>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom
         } else {
-            System.err.println("Cannot play null PointSound");
-        }
-    }
-    
-    public static void playBackgroundSound(BackgroundSound sound) {
-        if (sound != null) {
-            sound.setEnable(true);
-        } else {
-            System.err.println("Cannot play null BackgroundSound");
+            System.out.println("❌ Failed to load sound: " + name);
         }
     }
 
-    public static void pauseBackgroundSound(BackgroundSound sound) {
-        if (sound != null) {
-            sound.setEnable(false);
+    public static void load(String name, float x, float y, float z, boolean loop) {
+        if (get().loadInternal(name, loop)) {
+            get().setPos(name, x, y, z);
+            System.out.println("✅ Loaded + positioned: " + name + " at (" + x + ", " + y + ", " + z + ")");
         } else {
-            System.err.println("Cannot pause null BackgroundSound");
+            System.out.println("❌ Failed to load positional sound: " + name);
         }
     }
 
-    public static void stopBackgroundSound(BackgroundSound sound) {
-        if (sound != null) {
-            sound.setEnable(false);
-            sound.setSoundData(null);  // Release the sound data
-        } else {
-            System.err.println("Cannot stop null BackgroundSound");
+    public static void play(String name) {
+        get().playInternal(name);
+    }
+
+    public static void cleanup() {
+        if (instance != null) {
+            instance.cleanUp();
+            System.out.println("🧹 Sound system cleaned up.");
         }
     }
+<<<<<<< HEAD
     
     // New method to play sound using SoundUtilityJOAL
     public static void playJOALSound(String soundName) {
         soundUtility.play(soundName);
     }
 }
+=======
+
+    private static SoundEffects get() {
+        if (instance == null) {
+            instance = new SoundEffects();
+        }
+        return instance;
+    }
+
+    private SoundEffects() {
+        try {
+            ALut.alutInit();
+            al = ALFactory.getAL();
+            al.alGetError();
+            initListener();
+            System.out.println("🔊 OpenAL initialized.");
+        } catch (ALException e) {
+            System.err.println("❌ Failed to initialize OpenAL:");
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    private void initListener() {
+        al.alListener3f(ALConstants.AL_POSITION, 0, 0, 0);
+        al.alListener3i(ALConstants.AL_VELOCITY, 0, 0, 0);
+        float[] orientation = {0, 0, -1, 0, 1, 0};
+        al.alListenerfv(ALConstants.AL_ORIENTATION, orientation, 0);
+    }
+
+    private boolean loadInternal(String name, boolean loop) {
+        if (sourcesMap.containsKey(name)) return true;
+
+        ByteBuffer[] data = new ByteBuffer[1];
+        int[] format = new int[1], size = new int[1], freq = new int[1], loopFlag = new int[1];
+
+        try {
+            ALut.alutLoadWAVFile(SOUND_DIR + name + ".wav", format, data, size, freq, loopFlag);
+        } catch (ALException e) {
+            System.err.println("❌ Error loading WAV file: " + name);
+            return false;
+        }
+
+        int[] buffer = new int[1];
+        al.alGenBuffers(1, buffer, 0);
+        al.alBufferData(buffer[0], format[0], data[0], size[0], freq[0]);
+
+        int[] source = new int[1];
+        al.alGenSources(1, source, 0);
+        al.alSourcei(source[0], ALConstants.AL_BUFFER, buffer[0]);
+        al.alSourcef(source[0], ALConstants.AL_GAIN, 1.0f);
+        al.alSource3f(source[0], ALConstants.AL_POSITION, 0, 0, 0);
+        al.alSourcei(source[0], ALConstants.AL_LOOPING, loop ? ALConstants.AL_TRUE : ALConstants.AL_FALSE);
+
+        buffersMap.put(name, buffer);
+        sourcesMap.put(name, source);
+        return true;
+    }
+
+    private void setPos(String name, float x, float y, float z) {
+        int[] source = sourcesMap.get(name);
+        if (source != null) {
+            al.alSource3f(source[0], ALConstants.AL_POSITION, x, y, z);
+        }
+    }
+
+    private void playInternal(String name) {
+        int[] source = sourcesMap.get(name);
+        if (source != null) {
+            System.out.println("🔊 Playing sound: " + name);
+            al.alSourcePlay(source[0]);
+        } else {
+            System.out.println("⚠️ Sound not loaded: " + name);
+        }
+    }
+
+    private void cleanUp() {
+        for (String name : sourcesMap.keySet()) {
+            al.alSourceStop(sourcesMap.get(name)[0]);
+            al.alDeleteSources(1, sourcesMap.get(name), 0);
+            al.alDeleteBuffers(1, buffersMap.get(name), 0);
+        }
+        ALut.alutExit();
+    }
+}
+>>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom

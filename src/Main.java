@@ -5,9 +5,13 @@ import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 import java.awt.event.*;
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -43,6 +47,11 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("🔚 Shutting down: Cleaning up OpenAL");
+            SoundEffects.cleanup();
+        }));
+
     }
     
     private static void setupPicking() {
@@ -73,12 +82,28 @@ public class Main {
                                 TransformGroup tg = (TransformGroup)parent;
                                 if (tg.getUserData() != null) {
                                     String objName = (String)tg.getUserData();
+<<<<<<< HEAD
                                     if (objName.equals("Door")) {
                                         SoundEffects.playJOALSound("Door_Open"); // Use JOAL for door sound
+=======
+                                    if (objName.equals("Escape_door")) {
+                                        System.out.println("🖱️ Clicked: Escape_door");
+
+                                        // Load and play with full logging
+                                        System.out.println("📥 Loading sound: Door_Open");
+                                        SoundEffects.load("door-open_D_minor", false);
+
+                                        System.out.println("▶️ Playing sound: Door_Open");
+                                        SoundEffects.play("door-open_D_minor");
+
+>>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom
                                         return;
+                                    
+
+                                   
                                     } else if (objName.equals("Cross_middle")) {
-                                        SoundEffects.playSound(SoundEffects.crossRotationSound);
                                         return;
+                                        
                                     }
                                 }
                             }
@@ -111,10 +136,7 @@ public class Main {
             MOVEMENT_SPEED,
             VERTICAL_SPEED
         );
-        
-        // Initialize sound system
-        SoundEffects.enableAudio(universe);
-        
+                
         customizeTextures();
     }
 
@@ -325,7 +347,10 @@ public class Main {
             door.setUserData("Door");
             scene.addChild(door);
             
-            scene.addChild(creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.40, -0.215, 0.49), 0.55));
+            TransformGroup escapeDoor = creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.40, -0.215, 0.49), 0.55);
+            escapeDoor.setUserData("Escape_door"); // ✅ This is required for pick detection
+            scene.addChild(escapeDoor);
+
             scene.addChild(creator.createObject("Baseboard", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, -0.5, 0), 1.0));
             scene.addChild(creator.createObject("Cornice", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0.4, 0), 1.0));
@@ -357,6 +382,32 @@ public class Main {
         
         scene.addChild(createEnhancedLights());
         return scene;
+    }
+    
+    // Modify your endGame method
+    public static void endGame(boolean escaped) {
+        if (escaped) {
+            canvas.setVisible(true);
+            showWinScreen();
+            SoundEffects.play("Door_Open");
+        }
+    }
+
+   
+
+    // Add this new method
+    private static void showWinScreen() {
+        SwingUtilities.invokeLater(() -> {
+            Container container = new Container();
+			// Remove all components
+            container.removeAll();
+            
+            Frame frame = new Frame();
+			// Add win screen
+            frame.add(new WinScreen(null));
+            frame.validate();
+            frame.repaint();
+        });
     }
     
     private static BranchGroup createErrorScene() {

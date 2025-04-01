@@ -67,7 +67,6 @@ public class CrossPuzzle {
         rotationCount++;
         
         if (rotationCount % 4 == 0) {
-            SoundEffects.playSound(SoundEffects.crossRotationSound);
             
             for (TransformGroup cross : connectedCrosses) {
                 cross.getTransform(currentTransform);
