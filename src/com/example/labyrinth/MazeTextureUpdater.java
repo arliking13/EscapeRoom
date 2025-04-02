@@ -14,11 +14,16 @@ public class MazeTextureUpdater {
         this.mazePanel = panel;
         this.texture = texture;
         this.imageComponent = new ImageComponent2D(ImageComponent.FORMAT_RGBA, captureMazeImage());
+
+        // Enable the capability to allow setting the image later
+        imageComponent.setCapability(ImageComponent2D.ALLOW_IMAGE_WRITE);
+
         texture.setImage(0, imageComponent);
 
         // Update texture ~30 FPS
         new Timer(33, e -> updateTexture()).start();
     }
+
 
     private BufferedImage captureMazeImage() {
         int width = mazePanel.getWidth();

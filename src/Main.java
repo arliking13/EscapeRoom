@@ -10,6 +10,11 @@ import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import com.example.labyrinth.MazePanel;      // For rendering the 2D maze in the cube
+import com.example.labyrinth.MazeGameState;  // For managing the state of the maze game
+import javax.swing.Timer; // Add this import to fix the Timer issue
+import java.awt.Graphics2D; // Add this import to fix the Graphics2D issue
+
 
 import java.awt.event.*;
 import java.awt.AWTException;
@@ -334,6 +339,8 @@ public class Main {
             // Create all scene objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.4), 0.3));
+            TransformGroup mazeCubeTransformGroup = createMazeCube(); // Create the maze cube
+            scene.addChild(mazeCubeTransformGroup); // Add it to the scene
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, -0.4), 0.3));
             scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
             
@@ -387,6 +394,48 @@ public class Main {
             SoundEffects.play("Door_Open");
         }
     }
+    private static TransformGroup createMazeCube() {
+        TransformGroup tg = new TransformGroup();
+        tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+
+        // Setup for the maze texture
+        MazeGameState gameState = new MazeGameState();
+        MazePanel mazePanel = new MazePanel(gameState);
+        mazePanel.setSize(800, 640);
+        BufferedImage image = new BufferedImage(mazePanel.getWidth(), mazePanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        image.getGraphics().drawImage(mazePanel.createImage(mazePanel.getWidth(), mazePanel.getHeight()), 0, 0, null);
+
+
+
+        ImageComponent2D imageComponent = new ImageComponent2D(ImageComponent.FORMAT_RGBA, image);
+        Texture2D dynamicTexture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA, image.getWidth(), image.getHeight());
+        dynamicTexture.setImage(0, imageComponent);
+        dynamicTexture.setEnable(true);
+
+        Appearance mazeAppearance = new Appearance();
+        mazeAppearance.setTexture(dynamicTexture);
+
+        Box box = new Box(0.3f, 0.15f, 0.02f, Box.GENERATE_TEXTURE_COORDS, mazeAppearance);
+        tg.addChild(box);
+
+        new Timer(33, e -> updateMazeTexture(mazePanel, imageComponent, dynamicTexture)).start();
+
+        return tg;
+    }
+    private static void updateMazeTexture(MazePanel mazePanel, ImageComponent2D imageComponent, Texture2D dynamicTexture) {
+        mazePanel.repaint(); // Update the maze content
+
+        BufferedImage img = new BufferedImage(mazePanel.getWidth(), mazePanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+        mazePanel.paint(g2d);
+        g2d.dispose();
+
+        imageComponent.set(img);
+        dynamicTexture.setImage(0, imageComponent);
+    }
+
+
 
    
 

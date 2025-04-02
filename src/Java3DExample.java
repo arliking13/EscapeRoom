@@ -211,9 +211,8 @@ public class Java3DExample extends JFrame {
         defaultApp.setColoringAttributes(ca);
 
         // 8. Now safely create the cube
-        box = new Box(0.6f, 0.35f, 0.02f,  // ✅ WIDER and THINNER = TV-like
-        	    Primitive.GENERATE_TEXTURE_COORDS | Primitive.ENABLE_PICK_REPORTING,
-        	    defaultApp);
+        box = new Box(0.4f, 0.25f, 0.02f, Primitive.GENERATE_TEXTURE_COORDS, defaultApp);  // Smaller cube
+
 
 
         // 9. Assign the textured face
