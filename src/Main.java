@@ -3,7 +3,6 @@ import org.jogamp.java3d.utils.geometry.Box;
 import org.jogamp.java3d.utils.geometry.Sphere;
 import org.jogamp.java3d.utils.universe.*;
 import org.jogamp.vecmath.*;
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -33,7 +32,8 @@ public class Main {
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
     private static TransformGroup ceilingLampTransform;
-    private static SoundUtilityJOAL soundJOAL;
+    private static boolean justADoorOpened = false;
+
     
     public static void main(String[] args) {
         try {
@@ -82,10 +82,6 @@ public class Main {
                                 TransformGroup tg = (TransformGroup)parent;
                                 if (tg.getUserData() != null) {
                                     String objName = (String)tg.getUserData();
-<<<<<<< HEAD
-                                    if (objName.equals("Door")) {
-                                        SoundEffects.playJOALSound("Door_Open"); // Use JOAL for door sound
-=======
                                     if (objName.equals("Escape_door")) {
                                         System.out.println("🖱️ Clicked: Escape_door");
 
@@ -96,7 +92,6 @@ public class Main {
                                         System.out.println("▶️ Playing sound: Door_Open");
                                         SoundEffects.play("door-open_D_minor");
 
->>>>>>> branch 'main' of https://github.com/arliking13/EscapeRoom
                                         return;
                                     
 
