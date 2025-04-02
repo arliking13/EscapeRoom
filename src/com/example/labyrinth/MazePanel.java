@@ -95,6 +95,7 @@ public class MazePanel extends JPanel implements KeyListener {
         FontMetrics fm = g.getFontMetrics();
         int maxCharWidth = Emotes.measureMaxEmojiWidth(fm);
 
+        // Draw the maze and enemies above the status bar
         drawMaze(g, fm, maxCharWidth);
         drawEnemies(g, fm, maxCharWidth);
 
@@ -103,21 +104,12 @@ public class MazePanel extends JPanel implements KeyListener {
             drawPlayer(g, fm, maxCharWidth);
         }
 
-        // top-left HUD
+        // Draw the HUD at the top
         g.setColor(Color.WHITE);
         g.drawString("Health: " + state.player.getHealth(), 10, 20);
         g.drawString("Key: " + (state.player.hasKey() ? "Yes" : "No"), 10, 40);
 
-        // Control instructions (WASD to move)
-        g.setColor(Color.WHITE);
-        g.drawString("Use WASD to move", TILE_SIZE * 3, TILE_SIZE * 5);
-
-        // Hint about dying to win (display only when game isn't won yet)
-        if (!state.player.hasWon()) {
-            g.drawString("To win, you need to die", TILE_SIZE * 3, TILE_SIZE * 6);
-        }
-
-        // Win message
+        // Draw win message if player has won
         if (state.player.hasWon()) {
             g.setColor(Color.WHITE);
             g.drawString("You found a door...", TILE_SIZE * 5, TILE_SIZE * 8);
@@ -125,11 +117,20 @@ public class MazePanel extends JPanel implements KeyListener {
             g.drawString("Close this window if you dare.", TILE_SIZE * 5, TILE_SIZE * 10);
         }
 
-        // draw small status box in bottom-left
+        // Draw small status box in bottom-left (with health, key, etc.)
         drawStatusBox(g, fm, maxCharWidth);
 
-        // optional "doom face" in bottom center
+        // Draw optional "doom face" (player condition) in bottom center
         drawDoomHUD(g, fm, maxCharWidth);
+
+        // *** Status Bar at the bottom ***
+        g.setColor(Color.WHITE);
+        int statusBarHeight = 40; // Height for the status bar at the bottom
+        g.fillRect(0, getHeight() - statusBarHeight, getWidth(), statusBarHeight);  // Draw background for status bar
+
+        // Display instructions or comments in the status bar
+        g.setColor(Color.BLUE);
+        g.drawString("Use WASD to move. To win, you need to die.", 10, getHeight() - 20);  // Instruction text
     }
 
 
