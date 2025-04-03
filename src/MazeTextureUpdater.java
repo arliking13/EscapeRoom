@@ -1,4 +1,4 @@
-package com.example.labyrinth;
+
 
 import org.jogamp.java3d.*;
 import javax.swing.*;

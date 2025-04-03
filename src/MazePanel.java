@@ -1,19 +1,15 @@
-package com.example.labyrinth;
-
 import java.awt.Color;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.*;
 
 public class MazePanel extends JPanel implements KeyListener {
 	private MazeGameState state;
@@ -71,21 +67,26 @@ public class MazePanel extends JPanel implements KeyListener {
     public MazePanel(MazeGameState state) {
         this.state = state;
 
-        int totalHeight = ROWS * TILE_SIZE + HUD_HEIGHT;
+        int totalHeight = ROWS * TILE_SIZE + HUD_HEIGHT + 10;  // Extra padding
+
         setPreferredSize(new Dimension(COLS * TILE_SIZE, totalHeight));
         setBackground(Color.BLACK);
 
-        addKeyListener(this);
-        setFocusable(true);
+        setFocusable(true);               // ✅ allow focus
+        requestFocusInWindow();          // ✅ request focus immediately if possible
+        addKeyListener(this);            // ✅ listen to keys
+        requestFocusInWindow(); // Optional early focus attempt
+
 
         new Timer(300, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 animationFrame = (animationFrame + 1) % 2;
-                repaint(); // ✅ still keeps animation working
+                repaint();
             }
         }).start();
     }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -130,9 +131,15 @@ public class MazePanel extends JPanel implements KeyListener {
 
         // Display instructions or comments in the status bar
         g.setColor(Color.BLUE);
-        g.drawString("Use WASD to move. To win, you need to die.", 10, getHeight() - 20);  // Instruction text
-    }
 
+        String msg = "Use ← ↑ ↓ → to move. To win, you need to die.";
+        int msgWidth = fm.stringWidth(msg);
+        int x = (getWidth() - msgWidth) / 2;
+        int y = getHeight() - 10;
+
+        g.drawString(msg, x, y);
+
+    }
 
 
     private void drawMaze(Graphics g, FontMetrics fm, int charWidth) {
@@ -252,7 +259,8 @@ public class MazePanel extends JPanel implements KeyListener {
         int faceWidth = fm.stringWidth(doomFace);
         int faceHeight = fm.getAscent();
         int fx = centerX - faceWidth/2;
-        int fy = hudY + faceHeight;
+        int fy = hudY + faceHeight - 10;  // 🔼 Shift up by 10 pixels
+
 
         int keyW = fm.stringWidth(keyIcon);
         int kx = fx + faceWidth + 20;
@@ -282,6 +290,10 @@ public class MazePanel extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (!Main.isMazeActive()) return;
+        System.out.println("MazePanel: Key Pressed = " + e.getKeyCode());
+
+
         if (state.player.hasWon()) return;
 
         int code = e.getKeyCode();
@@ -289,14 +301,10 @@ public class MazePanel extends JPanel implements KeyListener {
         int newCol = state.player.getCol();
 
         switch(code) {
-            case KeyEvent.VK_UP:
-            case KeyEvent.VK_W: newRow--; break;
-            case KeyEvent.VK_DOWN:
-            case KeyEvent.VK_S: newRow++; break;
-            case KeyEvent.VK_LEFT:
-            case KeyEvent.VK_A: newCol--; break;
-            case KeyEvent.VK_RIGHT:
-            case KeyEvent.VK_D: newCol++; break;
+            case KeyEvent.VK_UP: newRow--; break;
+            case KeyEvent.VK_DOWN: newRow++; break;
+            case KeyEvent.VK_LEFT: newCol--; break;
+            case KeyEvent.VK_RIGHT: newCol++; break;
             default: return;
         }
 
@@ -307,9 +315,8 @@ public class MazePanel extends JPanel implements KeyListener {
 
         int tile = mazeData[newRow][newCol];
         if (tile == 2) {
-            // pick up key
             state.player.setHasKey(true);
-            state.player.triggerKeyCelebration(); // "funny" frames
+            state.player.triggerKeyCelebration();
             mazeData[newRow][newCol] = 0;
         } else if (tile == 3) {
             if (state.player.hasKey()) {
@@ -325,6 +332,8 @@ public class MazePanel extends JPanel implements KeyListener {
         updateEnemies();
         repaint();
     }
+
+
 
     private boolean validMove(int r, int c) {
         if (r<0 || r>=ROWS || c<0 || c>=COLS) return false;
@@ -392,4 +401,7 @@ public class MazePanel extends JPanel implements KeyListener {
     @Override public void keyReleased(KeyEvent e) {}
     @Override public void keyTyped(KeyEvent e) {}
     
+    
+    
 }
+

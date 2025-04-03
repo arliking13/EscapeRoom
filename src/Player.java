@@ -1,4 +1,4 @@
-package com.example.labyrinth;
+
 
 public class Player {
     private int row, col;

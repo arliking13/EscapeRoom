@@ -1,4 +1,4 @@
-package com.example.labyrinth;
+
 
 public class Enemy {
     public int row, col;

@@ -1,4 +1,4 @@
-package com.example.labyrinth;
+
 
 import javax.swing.JFrame;
 

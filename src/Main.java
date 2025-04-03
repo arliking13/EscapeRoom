@@ -1,3 +1,5 @@
+
+
 import org.jogamp.java3d.*;
 import org.jogamp.java3d.utils.geometry.Box;
 import org.jogamp.java3d.utils.geometry.Sphere;
@@ -10,10 +12,9 @@ import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import com.example.labyrinth.MazePanel;      // For rendering the 2D maze in the cube
-import com.example.labyrinth.MazeGameState;  // For managing the state of the maze game
-import javax.swing.Timer; // Add this import to fix the Timer issue
-import java.awt.Graphics2D; // Add this import to fix the Graphics2D issue
+import javax.swing.Timer;
+import java.awt.event.ActionEvent;
+
 
 
 import java.awt.event.*;
@@ -38,6 +39,11 @@ public class Main {
     private static SimpleUniverse universe;
     private static TransformGroup ceilingLampTransform;
     private static boolean justADoorOpened = false;
+    private static boolean mazeActive = false;
+    private static MazePanel integratedMazePanel;
+
+
+
 
     
     public static void main(String[] args) {
@@ -59,76 +65,106 @@ public class Main {
 
     }
     
+
+
     private static void setupPicking() {
         PickCanvas pickCanvas = new PickCanvas(canvas, universe.getLocale());
         pickCanvas.setMode(PickTool.GEOMETRY);
         pickCanvas.setTolerance(4.0f);
-        
+
         canvas.addMouseListener(new MouseAdapter() {
+            private long lastClickTime = 0;
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (!mouseCaptured) return;
-                
-                pickCanvas.setShapeLocation(e);
-                PickResult[] results = pickCanvas.pickAll();
-                
-                for (PickResult result : results) {
-                    Node node = result.getObject();
-                    if (node != null) {
-                        // Check if we clicked on the ceiling lamp
-                        Node parent = node.getParent();
-                        while (parent != null) {
-                            if (parent == ceilingLampTransform) {
-                                CreateObjects.transformToSphere(ceilingLampTransform);
-                                return;
-                            }
-                            // Check for Door or Cross_middle click
-                            if (parent instanceof TransformGroup) {
-                                TransformGroup tg = (TransformGroup)parent;
-                                if (tg.getUserData() != null) {
-                                    String objName = (String)tg.getUserData();
-                                    if (objName.equals("Escape_door")) {
-                                        System.out.println("🖱️ Clicked: Escape_door");
+                long now = System.currentTimeMillis();
+                if (now - lastClickTime < 300) { // Double-click detected
+                    pickCanvas.setShapeLocation(e);
+                    PickResult[] results = pickCanvas.pickAll();
+                    for (PickResult result : results) {
+                        Node node = result.getObject();
+                        if (node != null) {
+                            Node parent = node.getParent();
+                            while (parent != null) {
+                                if (parent instanceof TransformGroup) {
+                                    TransformGroup tg = (TransformGroup) parent;
+                                    if (tg.getUserData() != null) {
+                                        String objName = (String) tg.getUserData();
+                                        if (objName.equals("MazeObject")) {
+                                            if (!mazeActive) {
+                                                System.out.println("ENTER: Maze object double-clicked!");
+                                                mazeActive = true;
 
-                                        // Load and play with full logging
-                                        System.out.println("📥 Loading sound: Door_Open");
-                                        SoundEffects.load("door-open_D_minor", false);
+                                                // ✅ Set focus explicitly
+                                             // ✅ Set focus explicitly
+                                                integratedMazePanel.setFocusable(true);
 
-                                        System.out.println("▶️ Playing sound: Door_Open");
-                                        SoundEffects.play("door-open_D_minor");
+                                                Timer t = new Timer(100, evt -> {
+                                                    integratedMazePanel.setVisible(true); // only if using glass pane
+                                                    boolean ok = integratedMazePanel.requestFocusInWindow();
+                                                    System.out.println("✅ Delayed focus: " + ok);
+                                                });
 
-                                        return;
-                                    
+                                                t.setRepeats(false);
+                                                t.start();
 
-                                   
-                                    } else if (objName.equals("Cross_middle")) {
-                                        return;
-                                        
+
+
+                                            } else {
+                                                System.out.println("EXIT: Maze object double-clicked!");
+                                                mazeActive = false;
+
+                                                // Return focus to canvas
+                                                canvas.requestFocusInWindow();
+                                            }
+                                            return;
+                                        }
+
                                     }
                                 }
+                                parent = parent.getParent();
                             }
-                            parent = parent.getParent();
                         }
                     }
                 }
+                lastClickTime = now;
             }
         });
     }
+
+
+
+
+
     
     private static void initialize3DEnvironment() throws AWTException {
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         canvas = new GameCanvas();
         canvas.setPreferredSize(new Dimension(1280, 720));
         
+        // Create the main frame and add the canvas to its content pane.
         JFrame frame = new JFrame("3D Escape Room with Cross Puzzle");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
+        
+        // Set up the MazePanel as the glass pane.
+        // If it hasn't been created yet, instantiate it.
+        if (integratedMazePanel == null) {
+            MazeGameState state = new MazeGameState();
+            integratedMazePanel = new MazePanel(state);
+            integratedMazePanel.setPreferredSize(new Dimension(1280, 720));
+        }
+        // Install the MazePanel as the glass pane and keep it hidden initially.
+        frame.setGlassPane(integratedMazePanel);
+        integratedMazePanel.setVisible(true); // <-- THIS is critical
+        
         frame.pack();
         frame.setVisible(true);
         
+        // Create the universe and configure the viewing platform.
         universe = new SimpleUniverse(canvas);
         configureViewingPlatform();
         
+        // Create and install the player controls.
         playerControls = new PlayerControls(
             universe.getViewingPlatform().getViewPlatformTransform(),
             canvas,
@@ -139,6 +175,9 @@ public class Main {
                 
         customizeTextures();
     }
+
+
+
 
     private static class PlayerControls implements KeyListener, MouseMotionListener {
         private final TransformGroup viewTransformGroup;
@@ -239,7 +278,10 @@ public class Main {
 
         @Override
         public void keyPressed(KeyEvent e) {
+            if (Main.isMazeActive()) return; // ✅ ignore camera movement during maze
+
             switch (e.getKeyCode()) {
+
                 case KeyEvent.VK_S: forward = true; break;
                 case KeyEvent.VK_W: backward = true; break;
                 case KeyEvent.VK_D: left = true; break;
@@ -253,9 +295,13 @@ public class Main {
             }
         }
 
+
         @Override
         public void keyReleased(KeyEvent e) {
+            if (Main.isMazeActive()) return; // ✅ ignore key releases during maze
+
             switch (e.getKeyCode()) {
+
                 case KeyEvent.VK_S: forward = false; break;
                 case KeyEvent.VK_W: backward = false; break;
                 case KeyEvent.VK_D: left = false; break;
@@ -339,8 +385,6 @@ public class Main {
             // Create all scene objects
             scene.addChild(creator.createObject("room3", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0, 0, 0), 1.0));
             scene.addChild(creator.createObject("ChairOld", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.3, -0.4), 0.3));
-            TransformGroup mazeCubeTransformGroup = createMazeCube(); // Create the maze cube
-            scene.addChild(mazeCubeTransformGroup); // Add it to the scene
             scene.addChild(creator.createObject("Desk", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.5, -0.28, -0.4), 0.3));
             scene.addChild(creator.createObject("Locker", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.6, -0.2, 0.6), 0.2));
             
@@ -381,7 +425,59 @@ public class Main {
             System.err.println("Error creating scene objects: " + e.getMessage());
             return createErrorScene();
         }
-        
+   
+ 
+     // // Integration of the Java3DExample maze object:
+        Java3DExample example = new Java3DExample(true);
+        TransformGroup cubeTG = example.getCubeTransformGroup();
+        cubeTG.setUserData("MazeObject");
+
+        // 1. Create rotation (rotate around Y axis)
+        Transform3D rotation = new Transform3D();
+        rotation.rotY(Math.PI / 2);  // 90 degrees (can also try Math.PI, etc.)
+
+        // 2. Create translation
+        Transform3D translation = new Transform3D();
+        translation.setTranslation(new Vector3d(0.2, 0, -0.96));
+        //x – left/right
+
+        //y – up/down
+
+        //z – forward/backward (depth)
+
+        // 3. Combine rotation then translation
+        rotation.mul(translation);  // Rotate, then move
+
+        // 4. Apply to the object
+        cubeTG.setTransform(rotation);
+
+        scene.addChild(cubeTG);
+
+        // Save MazePanel reference.
+        integratedMazePanel = example.getMazePanel();
+        integratedMazePanel.setVisible(false);
+        canvas.requestFocusInWindow();
+        canvas.requestFocusInWindow();
+
+     // ✅ Forward arrow key events from Canvas to MazePanel when active
+     canvas.addKeyListener(new KeyAdapter() {
+         @Override
+         public void keyPressed(KeyEvent e) {
+             if (mazeActive && integratedMazePanel != null) {
+                 integratedMazePanel.dispatchEvent(e);
+             }
+         }
+
+         @Override
+         public void keyReleased(KeyEvent e) {
+             if (mazeActive && integratedMazePanel != null) {
+                 integratedMazePanel.dispatchEvent(e);
+             }
+         }
+     });
+
+
+
         scene.addChild(createEnhancedLights());
         return scene;
     }
@@ -394,48 +490,6 @@ public class Main {
             SoundEffects.play("Door_Open");
         }
     }
-    private static TransformGroup createMazeCube() {
-        TransformGroup tg = new TransformGroup();
-        tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-
-        // Setup for the maze texture
-        MazeGameState gameState = new MazeGameState();
-        MazePanel mazePanel = new MazePanel(gameState);
-        mazePanel.setSize(800, 640);
-        BufferedImage image = new BufferedImage(mazePanel.getWidth(), mazePanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        image.getGraphics().drawImage(mazePanel.createImage(mazePanel.getWidth(), mazePanel.getHeight()), 0, 0, null);
-
-
-
-        ImageComponent2D imageComponent = new ImageComponent2D(ImageComponent.FORMAT_RGBA, image);
-        Texture2D dynamicTexture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA, image.getWidth(), image.getHeight());
-        dynamicTexture.setImage(0, imageComponent);
-        dynamicTexture.setEnable(true);
-
-        Appearance mazeAppearance = new Appearance();
-        mazeAppearance.setTexture(dynamicTexture);
-
-        Box box = new Box(0.3f, 0.15f, 0.02f, Box.GENERATE_TEXTURE_COORDS, mazeAppearance);
-        tg.addChild(box);
-
-        new Timer(33, e -> updateMazeTexture(mazePanel, imageComponent, dynamicTexture)).start();
-
-        return tg;
-    }
-    private static void updateMazeTexture(MazePanel mazePanel, ImageComponent2D imageComponent, Texture2D dynamicTexture) {
-        mazePanel.repaint(); // Update the maze content
-
-        BufferedImage img = new BufferedImage(mazePanel.getWidth(), mazePanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = img.createGraphics();
-        mazePanel.paint(g2d);
-        g2d.dispose();
-
-        imageComponent.set(img);
-        dynamicTexture.setImage(0, imageComponent);
-    }
-
-
 
    
 
@@ -498,4 +552,15 @@ public class Main {
             }
         }).start();
     }
+    public static boolean isMazeActive() {
+        return mazeActive;
+    }
+
+    public static void exitMazeMode() {
+        mazeActive = false;
+        integratedMazePanel.setVisible(false);
+        canvas.requestFocusInWindow();
+    }
+
+
 }

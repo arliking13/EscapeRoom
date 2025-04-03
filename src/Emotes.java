@@ -1,4 +1,4 @@
-package com.example.labyrinth;
+
 
 import java.awt.FontMetrics;
 
