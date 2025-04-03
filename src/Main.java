@@ -1,5 +1,3 @@
-
-
 import org.jogamp.java3d.*;
 import org.jogamp.java3d.utils.geometry.Box;
 import org.jogamp.java3d.utils.geometry.Sphere;
