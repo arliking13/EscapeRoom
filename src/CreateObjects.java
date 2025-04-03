@@ -23,10 +23,8 @@ public class CreateObjects {
         
         BranchGroup object = LoadObject.loadObject(objName);
         if (object != null) {
-            // Make the BranchGroup detachable
             object.setCapability(BranchGroup.ALLOW_DETACH);
             
-            // Make objects pickable if they're the ceiling lamp
             if (objName.equals("Ceiling_lamp")) {
                 setupPickability(object);
             }
@@ -35,12 +33,10 @@ public class CreateObjects {
             objNode.addChild(createErrorObject());
         }
 
-        // Set up puzzle behavior for crosses
         if (objName.equals("Cross_middle")) {
             crossPuzzle = new CrossPuzzle(objNode);
         }
         
-        // Connect other crosses to the puzzle
         if (crossPuzzle != null && isConnectedCross(objName)) {
             crossPuzzle.addConnectedCross(objNode);
         }
@@ -49,7 +45,6 @@ public class CreateObjects {
     }
     
     private void setupPickability(BranchGroup object) {
-        // Make all Shape3D objects pickable using Iterator
         Iterator<Node> children = object.getAllChildren();
         while (children.hasNext()) {
             Node child = children.next();
@@ -65,7 +60,6 @@ public class CreateObjects {
     }
     
     public static void transformToSphere(TransformGroup objNode) {
-        // First detach any existing BranchGroup children
         for (int i = 0; i < objNode.numChildren(); i++) {
             Node child = objNode.getChild(i);
             if (child instanceof BranchGroup) {
@@ -74,24 +68,20 @@ public class CreateObjects {
             }
         }
         
-        // Clear all children (now safe to do)
         objNode.removeAllChildren();
         
-        // Create a small red sphere
         Appearance app = new Appearance();
         Material mat = new Material();
         mat.setDiffuseColor(new Color3f(1f, 0f, 0f));
         mat.setLightingEnable(true);
         app.setMaterial(mat);
         
-        // Create a BranchGroup to hold the sphere
         BranchGroup sphereGroup = new BranchGroup();
         sphereGroup.setCapability(BranchGroup.ALLOW_DETACH);
         
-        Sphere sphere = new Sphere(0.05f, app);
+        Sphere sphere = new Sphere(0.8f, app); // Larger sphere size
         sphereGroup.addChild(sphere);
         
-        // Add the BranchGroup to the TransformGroup
         objNode.addChild(sphereGroup);
     }
     
