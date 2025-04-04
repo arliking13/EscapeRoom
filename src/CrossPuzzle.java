@@ -1,5 +1,9 @@
 // CrossPuzzle.java
 import org.jogamp.java3d.*;
+import org.jogamp.java3d.utils.picking.PickCanvas;
+import org.jogamp.java3d.utils.picking.PickResult;
+import org.jogamp.java3d.utils.picking.PickTool;
+
 import org.jogamp.vecmath.*;
 import java.awt.AWTEvent;
 import java.awt.event.MouseEvent;
@@ -13,6 +17,8 @@ public class CrossPuzzle {
     private boolean debug = false; // Set to false to disable logs
     private ArrayList<Integer> connectedRotationCounts = new ArrayList<>();
     private boolean solved = false;
+    private boolean alreadyNotified = false;
+
 
     
 
@@ -38,12 +44,12 @@ public class CrossPuzzle {
     private void setupBehavior() {
         Behavior clickBehavior = new Behavior() {
             private WakeupOnAWTEvent wakeCondition = new WakeupOnAWTEvent(MouseEvent.MOUSE_CLICKED);
-            
+
             @Override
             public void initialize() {
                 wakeupOn(wakeCondition);
             }
-            
+
             @Override
             public void processStimulus(Iterator<WakeupCriterion> criteria) {
                 while (criteria.hasNext()) {
@@ -51,10 +57,29 @@ public class CrossPuzzle {
                     if (criterion instanceof WakeupOnAWTEvent) {
                         AWTEvent[] events = ((WakeupOnAWTEvent)criterion).getAWTEvent();
                         for (AWTEvent event : events) {
-                            if (event instanceof MouseEvent) {
-                                MouseEvent me = (MouseEvent) event;
+                            if (event instanceof MouseEvent me) {
                                 if (me.getButton() == MouseEvent.BUTTON1) {
-                                    rotateCross();
+                                    // Only trigger if the source is inside the actual cross object
+                                    if (me.getSource() instanceof Canvas3D canvas) {
+                                        PickCanvas picker = new PickCanvas(canvas, crossMiddle.getLocale());
+                                        picker.setMode(PickTool.GEOMETRY);
+                                        picker.setTolerance(4.0f);
+                                        picker.setShapeLocation(me);
+
+                                        PickResult result = picker.pickClosest();
+                                        if (result != null) {
+                                            Node node = result.getObject();
+                                            Node parent = node != null ? node.getParent() : null;
+
+                                            while (parent != null) {
+                                                if (parent == crossMiddle) {
+                                                    rotateCross(); // ✅ Only rotate if actual cross is clicked
+                                                    break;
+                                                }
+                                                parent = parent.getParent();
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -63,11 +88,12 @@ public class CrossPuzzle {
                 wakeupOn(wakeCondition);
             }
         };
-        
+
         BoundingSphere bounds = new BoundingSphere(new Point3d(0, 0, 0), 100.0);
         clickBehavior.setSchedulingBounds(bounds);
         crossMiddle.addChild(clickBehavior);
     }
+
     public void applyStartingRotation() {
         Transform3D rotation = new Transform3D();
         rotation.rotX(Math.toRadians(90));
@@ -84,22 +110,28 @@ public class CrossPuzzle {
 
 
     private void checkIfPuzzleSolved() {
-        if (rotationCount % 4 != 0) return; // Middle must be upright
+        if (rotationCount % 4 != 0) return;
 
         for (int count : connectedRotationCounts) {
-            if (count % 4 != 0) return; // Any connected cross not upright
+            if (count % 4 != 0) return;
         }
 
-        // All crosses are upright!
-        System.out.println("✅ Puzzle solved! All crosses are upright.");
-        solved = true;  // Lock the puzzle to prevent further rotations
+        if (!solved) {
+            System.out.println("✅ Puzzle solved! All crosses are upright.");
+            solved = true;
 
-        // Play win sound (assume the bell sound file is named "win_bell.wav")
-        SoundEffects.load("bell_sound", false); // Load the win bell sound without looping
-        SoundEffects.play("bell_sound");
+            SoundEffects.load("bell_sound", false);
+            SoundEffects.play("bell_sound");
 
-        // Optionally, trigger additional game logic here (e.g., Main.endGame(true))
+            if (!alreadyNotified) {
+                alreadyNotified = true;
+                System.out.println("📢 Notifying Main that this puzzle is solved...");
+                Main.notifyPuzzleSolved(crossMiddle);
+            }
+        }
     }
+
+
 
 
     
@@ -146,6 +178,8 @@ public class CrossPuzzle {
 
             // Check if the puzzle is solved.
             checkIfPuzzleSolved();
+            Main.notifyPuzzleSolved(crossMiddle); // This is required!
+
         }
     }
 

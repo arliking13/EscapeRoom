@@ -12,6 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.event.*;
+import java.util.Set;
+import java.util.HashSet;
+
 
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -21,6 +24,11 @@ import java.util.Enumeration;
 import org.jogamp.java3d.utils.picking.PickTool;
 import org.jogamp.java3d.utils.picking.PickResult;
 import org.jogamp.java3d.utils.picking.PickCanvas;
+import java.util.ArrayList;
+import org.jogamp.java3d.TransformGroup;
+
+
+
 
 public class Main {
     // Sensitivity controls
@@ -37,7 +45,21 @@ public class Main {
     private static boolean justADoorOpened = false;
     private static boolean mazeActive = false;
     private static MazePanel integratedMazePanel;
-    private static boolean isLampActive = true;  // Added from first Main
+    private static boolean isLampActive = true;  // ✅ Keep this
+    private static boolean doorIsOpen = true;    // ✅ Keep this
+    private static boolean escapeDoorIsOpen = false; // ✅ Keep this
+    private static boolean doorActivationPlayed = false;
+    
+
+
+
+    // 🔽 Add puzzle tracking flags below
+    private static boolean firstPuzzleSolved = false;
+    private static boolean secondPuzzleSolved = false;
+    private static boolean activationSoundPlayed = false;
+
+
+
     
     public static void main(String[] args) {
         try {
@@ -62,6 +84,75 @@ public class Main {
             SoundEffects.cleanup();
         }));
     }
+    private static void processRegularDoor() {
+        if (doorIsOpen) {
+            doorIsOpen = false;
+            SoundEffects.load("door_locked", false);
+            SoundEffects.play("door_locked");
+        } else {
+            SoundEffects.load("door_locked", false);
+            SoundEffects.play("door_locked");
+        }
+    }
+
+
+
+    // ↓ Add this near the bottom of the Main.java class
+    private static void processEscapeDoor() {
+        if (!integratedMazePanel.getGameState().player.hasWon()) {
+            System.out.println("🚫 Maze not won yet. Door locked.");
+            SoundEffects.load("door_locked", false);
+            SoundEffects.play("door_locked");
+        } else if (!doorActivationPlayed) {
+
+            System.out.println("🔒 Puzzles not solved. Door locked.");
+            SoundEffects.load("door_locked", false);
+            SoundEffects.play("door_locked");
+        } else {
+            if (!escapeDoorIsOpen) {
+                escapeDoorIsOpen = true;
+                System.out.println("🚪 Door opening now.");
+                SoundEffects.load("door_opened", false);
+                SoundEffects.play("door_opened");
+            } else {
+                System.out.println("🟢 Door already open.");
+            }
+        }
+    }
+
+
+
+    private static TransformGroup firstSolvedGroup = null;
+    private static TransformGroup secondSolvedGroup = null;
+    private static int puzzlesSolved = 0;
+    
+
+    private static final Set<TransformGroup> solvedPuzzles = new HashSet<>();
+
+    public static void notifyPuzzleSolved(TransformGroup puzzle) {
+        if (solvedPuzzles.contains(puzzle)) return; // Prevent re-adding same puzzle
+        solvedPuzzles.add(puzzle);
+
+        System.out.println("🧩 Puzzle reported solved! Total solved: " + solvedPuzzles.size());
+
+        if (solvedPuzzles.size() == 2 && !doorActivationPlayed) {
+            doorActivationPlayed = true;
+
+
+            System.out.println("🚪 All puzzles solved. Activating escape door...");
+            SoundEffects.load("door_activated", false);
+            SoundEffects.play("door_activated");
+        }
+    }
+
+
+
+
+
+
+
+
+
 
     private static void setupPicking() {
         PickCanvas pickCanvas = new PickCanvas(canvas, universe.getLocale());
@@ -70,6 +161,7 @@ public class Main {
 
         canvas.addMouseListener(new MouseAdapter() {
             private long lastClickTime = 0;
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 long now = System.currentTimeMillis();
@@ -89,7 +181,7 @@ public class Main {
                                             if (!mazeActive) {
                                                 System.out.println("ENTER: Maze object double-clicked!");
                                                 mazeActive = true;
-                                                
+
                                                 SoundEffects.load("ui-sound-on", false);
                                                 SoundEffects.play("ui-sound-on");
 
@@ -104,10 +196,10 @@ public class Main {
                                             } else {
                                                 System.out.println("EXIT: Maze object double-clicked!");
                                                 mazeActive = false;
-                                                
+
                                                 SoundEffects.load("ui-sound-off", false);
                                                 SoundEffects.play("ui-sound-off");
-                                                
+
                                                 canvas.requestFocusInWindow();
                                             }
                                             return;
@@ -121,20 +213,20 @@ public class Main {
                 }
                 lastClickTime = now;
 
-                // Single click handling (for lamp and other objects) - Added from first Main
+                // Single click handling (lamp, door, escape door)
                 if (!mouseCaptured) {
                     System.out.println("Mouse not captured, ignoring click.");
                     return;
                 }
-                
+
                 pickCanvas.setShapeLocation(e);
                 PickResult[] results = pickCanvas.pickAll();
-                
+
                 if (results == null) {
                     System.out.println("No objects picked.");
                     return;
                 }
-                
+
                 System.out.println("Pick results found: " + results.length);
                 for (PickResult result : results) {
                     Node node = result.getObject();
@@ -173,6 +265,20 @@ public class Main {
                                 isLampActive = !isLampActive;
                                 return;
                             }
+
+                            // 🔽 Handle regular door and escape door here
+                            if (parent instanceof TransformGroup && ((TransformGroup) parent).getUserData() != null) {
+                                String objName = (String) ((TransformGroup) parent).getUserData();
+
+                                if (objName.equals("Door")) {
+                                    processRegularDoor();
+                                    return;
+                                } else if (objName.equals("Escape_door")) {
+                                    processEscapeDoor();
+                                    return;
+                                }
+                            }
+
                             parent = parent.getParent();
                         }
                     }
@@ -180,6 +286,7 @@ public class Main {
             }
         });
     }
+
 
     // Added from first Main
     private static BranchGroup createSphereBranchGroup() {
@@ -468,6 +575,8 @@ public class Main {
             middleCross.setUserData("Cross_middle");
             scene.addChild(middleCross);
             
+            CrossPuzzle puzzle1 = new CrossPuzzle(middleCross); // Make sure CrossPuzzle accepts this
+
             scene.addChild(creator.createObject("Cross_right", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.96, 0.025, -0.039), 0.07));
             scene.addChild(creator.createObject("The_rightmost_cross", new AxisAngle4d(0, 1, 0, 0), new Vector3d(0.96, -0.08, 0.13), 0.07));
             

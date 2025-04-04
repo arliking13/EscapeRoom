@@ -346,6 +346,10 @@ public class MazePanel extends JPanel implements KeyListener {
         updateEnemies();
         repaint();
     }
+    public MazeGameState getGameState() {
+        return state;
+    }
+
 
 
 

@@ -44,6 +44,7 @@ public class MazeGameState {
             gameWon = true;
         }
     }
+    
 
     public boolean isNearEnemy(double range) {
         Point playerPos = new Point(player.getCol(), player.getRow());
