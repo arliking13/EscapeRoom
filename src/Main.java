@@ -29,6 +29,7 @@ public class Main {
     private static final float VERTICAL_SPEED = 0.04f;
     
     private static PlayerControls playerControls;
+    private static Player player = new Player();
     private static boolean mouseCaptured = true;
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
