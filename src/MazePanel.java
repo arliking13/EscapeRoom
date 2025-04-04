@@ -331,12 +331,17 @@ public class MazePanel extends JPanel implements KeyListener {
                 state.player.setWon(true);
                 if (!winSoundPlayed) {
                     winSoundPlayed = true;
-                    // Load and play the bell sound once
+
+                    // ✅ Play win sound
                     SoundEffects.load("bell_sound", false);
                     SoundEffects.play("bell_sound");
+
+                    // ✅ Report puzzle solved
+                    PuzzleTracker.reportMazeSolved();
                 }
             }
-        } else if (tile == 4) {
+        }
+ else if (tile == 4) {
             state.player.decrementHealth();
             if (state.player.getHealth() <= 0) {
                 resetPlayer();

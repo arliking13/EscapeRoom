@@ -42,8 +42,12 @@ public class MazeGameState {
         if (player.getRow() == 18 && player.getCol() == 23 && player.hasKey()) {
             player.setWon(true);
             gameWon = true;
+
+            // ✅ Notify puzzle tracker that maze is solved
+            PuzzleTracker.reportMazeSolved();
         }
     }
+
     
 
     public boolean isNearEnemy(double range) {
