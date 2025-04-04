@@ -121,4 +121,11 @@ public class SoundEffects {
         }
         ALut.alutExit();
     }
+    public static void setGain(String name, float gain) {
+        int[] source = get().sourcesMap.get(name);
+        if (source != null) {
+            get().al.alSourcef(source[0], ALConstants.AL_GAIN, gain);
+        }
+    }
+
 }
