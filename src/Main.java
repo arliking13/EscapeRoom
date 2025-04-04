@@ -81,11 +81,11 @@ public class Main {
             playButton.setBounds(540, 280, 200, 50);
             playButton.setFont(new Font("Monospaced", Font.BOLD, 24));
             playButton.setForeground(Color.WHITE);
-            playButton.setBackground(new Color(34, 139, 34)); // Forest green
+            playButton.setBackground(new Color(34, 139, 34)); // nice green
             playButton.setFocusPainted(false);
             playButton.setBorderPainted(false);
             playButton.setOpaque(true);
-            playButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            playButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // <- 👈 HERE
             menuPanel.add(playButton);
 
             // ❌ Exit Button
@@ -93,12 +93,13 @@ public class Main {
             exitButton.setBounds(540, 350, 200, 50);
             exitButton.setFont(new Font("Monospaced", Font.BOLD, 24));
             exitButton.setForeground(Color.WHITE);
-            exitButton.setBackground(new Color(139, 0, 0)); // Dark red
+            exitButton.setBackground(new Color(139, 0, 0)); // dark red
             exitButton.setFocusPainted(false);
             exitButton.setBorderPainted(false);
             exitButton.setOpaque(true);
-            exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // <- 👈 HERE
             menuPanel.add(exitButton);
+
 
 
             frame.add(menuPanel, BorderLayout.CENTER);
