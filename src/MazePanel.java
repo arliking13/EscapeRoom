@@ -19,6 +19,8 @@ public class MazePanel extends JPanel implements KeyListener {
     private static final int ROWS = 20;
     private static final int COLS = 25;
     private static final int TILE_SIZE = 32;
+    private boolean winSoundPlayed = false;
+
     
 
 
@@ -293,17 +295,19 @@ public class MazePanel extends JPanel implements KeyListener {
         if (!Main.isMazeActive()) return;
         System.out.println("MazePanel: Key Pressed = " + e.getKeyCode());
 
-
-        if (state.player.hasWon()) return;
+        if (state.player.hasWon()) {
+            // If already won, ignore further key presses
+            return;
+        }
 
         int code = e.getKeyCode();
         int newRow = state.player.getRow();
         int newCol = state.player.getCol();
 
         switch(code) {
-            case KeyEvent.VK_UP: newRow--; break;
-            case KeyEvent.VK_DOWN: newRow++; break;
-            case KeyEvent.VK_LEFT: newCol--; break;
+            case KeyEvent.VK_UP:    newRow--; break;
+            case KeyEvent.VK_DOWN:  newRow++; break;
+            case KeyEvent.VK_LEFT:  newCol--; break;
             case KeyEvent.VK_RIGHT: newCol++; break;
             default: return;
         }
@@ -318,9 +322,19 @@ public class MazePanel extends JPanel implements KeyListener {
             state.player.setHasKey(true);
             state.player.triggerKeyCelebration();
             mazeData[newRow][newCol] = 0;
+            
+            // Load and play the key sound (key_sound.wav)
+            SoundEffects.load("key_sound", false);  // 'false' indicates no looping
+            SoundEffects.play("key_sound");
         } else if (tile == 3) {
-            if (state.player.hasKey()) {
+            if (state.player.hasKey() && !state.player.hasWon()) {
                 state.player.setWon(true);
+                if (!winSoundPlayed) {
+                    winSoundPlayed = true;
+                    // Load and play the bell sound once
+                    SoundEffects.load("bell_sound", false);
+                    SoundEffects.play("bell_sound");
+                }
             }
         } else if (tile == 4) {
             state.player.decrementHealth();
@@ -391,12 +405,17 @@ public class MazePanel extends JPanel implements KeyListener {
     }
 
     private void resetPlayer() {
-        // Fix: use our defined startRow & startCol
+        // Play dead sound before resetting the player
+        SoundEffects.load("dead", false); // false indicates no looping
+        SoundEffects.play("dead");
+
+        // Reset player's position and health
         state.player.setRow(startRow);
         state.player.setCol(startCol);
         state.player.setHealth(3);
-        // keep key & door states
+        // Optionally, reset any additional player state (like key possession)
     }
+
 
     @Override public void keyReleased(KeyEvent e) {}
     @Override public void keyTyped(KeyEvent e) {}

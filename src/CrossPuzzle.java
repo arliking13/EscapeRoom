@@ -94,7 +94,11 @@ public class CrossPuzzle {
         System.out.println("✅ Puzzle solved! All crosses are upright.");
         solved = true;  // Lock the puzzle to prevent further rotations
 
-        // Optionally trigger additional game logic here (e.g., Main.endGame(true))
+        // Play win sound (assume the bell sound file is named "win_bell.wav")
+        SoundEffects.load("bell_sound", false); // Load the win bell sound without looping
+        SoundEffects.play("bell_sound");
+
+        // Optionally, trigger additional game logic here (e.g., Main.endGame(true))
     }
 
 
@@ -102,20 +106,28 @@ public class CrossPuzzle {
     private void rotateCross() {
         if (solved) return; // Do not rotate if puzzle is already solved
 
+        // Create a 90° rotation transform around the X-axis.
         Transform3D rotation = new Transform3D();
         rotation.rotX(Math.toRadians(90));
 
+        // Get the current transform, apply the new rotation, and update the middle cross.
         Transform3D currentTransform = new Transform3D();
         crossMiddle.getTransform(currentTransform);
         currentTransform.mul(rotation);
         crossMiddle.setTransform(currentTransform);
 
+        // Increment the rotation counter.
         rotationCount++;
+
+        // Play the cross rotation sound.
+        SoundEffects.load("cross_sound", false); // Load without looping.
+        SoundEffects.play("cross_sound");
 
         if (debug) {
             System.out.println("[DEBUG] Middle cross rotated. Total: " + rotationCount);
         }
 
+        // If the middle cross has completed a full cycle (relative to its offset), rotate the connected crosses.
         if (rotationCount % 4 == 0) {
             if (debug) System.out.println("[DEBUG] 4 rotations. Rotating connected crosses...");
 
@@ -125,14 +137,14 @@ public class CrossPuzzle {
                 currentTransform.mul(rotation);
                 cross.setTransform(currentTransform);
 
-                // Track rotation
+                // Update the rotation counter for the connected cross.
                 int newCount = connectedRotationCounts.get(i) + 1;
                 connectedRotationCounts.set(i, newCount);
 
                 if (debug) System.out.println("    - Rotated connected cross. Count: " + newCount);
             }
 
-            // Check if puzzle is solved
+            // Check if the puzzle is solved.
             checkIfPuzzleSolved();
         }
     }

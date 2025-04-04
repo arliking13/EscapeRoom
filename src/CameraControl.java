@@ -5,7 +5,7 @@ import java.awt.event.*;
 public class CameraControl implements KeyListener, MouseMotionListener{
 	private TransformGroup viewTransformGroup;
     private Transform3D transform = new Transform3D();
-    private Vector3f position = new Vector3f(0.0f, 1.5f, 5.0f);
+    private Vector3f position = new Vector3f(0.0f, -5f, 5.0f);
     private float angleY = 0.0f;   // Yaw (left/right rotation)
     private float angleX = 0.0f;   // Pitch (up/down rotation)
     private float moveSpeed = 0.2f;
@@ -83,6 +83,7 @@ public class CameraControl implements KeyListener, MouseMotionListener{
     }
 
     private void updateTransform() {
+    	System.out.println("Camera position: " + position);
         // Limit pitch to avoid gimbal lock
         angleX = Math.max(-(float)Math.PI/2, Math.min((float)Math.PI/2, angleX));
         
