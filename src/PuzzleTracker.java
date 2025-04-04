@@ -7,9 +7,9 @@ import java.util.Set;
  */
 public class PuzzleTracker {
 
-    // Store both cross puzzles (as TransformGroup) and maze (as "MAZE" string)
     private static final Set<Object> solvedPuzzles = new HashSet<>();
     private static boolean doorActivated = false;
+    private static boolean escapeDoorCanBeOpened = false;
 
     /**
      * Call this from CrossPuzzle when a cross is solved.
@@ -36,7 +36,7 @@ public class PuzzleTracker {
     }
 
     /**
-     * If both puzzles are solved, play the door activation sound once.
+     * If both puzzles are solved, play activation then opening sound automatically.
      */
     private static void checkAndPlayDoorActivated() {
         if (solvedPuzzles.size() == 2 && !doorActivated) {
@@ -45,13 +45,13 @@ public class PuzzleTracker {
             SoundEffects.load("door_activated", false);
             SoundEffects.play("door_activated");
 
-            // Delay enabling door opening to simulate sound duration (e.g., 2.5s)
             new Thread(() -> {
                 try {
-                    Thread.sleep(2500); // wait for 2.5 seconds (match the actual sound length!)
+                    Thread.sleep(2500); // Wait for door_activated.wav to finish
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 escapeDoorCanBeOpened = true;
                 System.out.println("✅ Door is now openable.");
             }).start();
@@ -59,24 +59,17 @@ public class PuzzleTracker {
     }
 
 
-    /**
-     * Optional: reset the tracker state (useful for restarting the game).
-     */
-    public static void reset() {
-        solvedPuzzles.clear();
-        doorActivated = false;
-    }
-
-    /**
-     * Returns true if both puzzles are completed.
-     */
-    public static boolean allPuzzlesSolved() {
-        return doorActivated;
-    }
-    private static boolean escapeDoorCanBeOpened = false;
-
     public static boolean canOpenEscapeDoor() {
         return escapeDoorCanBeOpened;
     }
 
+    public static boolean allPuzzlesSolved() {
+        return doorActivated;
+    }
+
+    public static void reset() {
+        solvedPuzzles.clear();
+        doorActivated = false;
+        escapeDoorCanBeOpened = false;
+    }
 }

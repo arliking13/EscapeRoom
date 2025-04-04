@@ -12,6 +12,19 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import java.awt.Color;
+import java.awt.Cursor;
+
+
+import java.awt.Font;
+
+
+
+
 
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -41,31 +54,92 @@ public class Main {
     private static boolean isLampActive = true;  // Added from first Main
     private static boolean doorIsOpen = true;
     private static boolean escapeDoorIsOpen = false;
+    private static TransformGroup escapeDoor;
+
 
     
     public static void main(String[] args) {
-        try {
-            initialize3DEnvironment();
-            BranchGroup scene = createScene();
-            universe.addBranchGraph(scene);
-            setupPicking();
-            startGameLoop();
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Escape Room (Shed)");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(1280, 720);
+            frame.setLayout(new BorderLayout());
 
-            // Load the horror ambiance sound with looping enabled:
-            SoundEffects.load("horror_ambiance", true);
-            SoundEffects.setGain("horror_ambiance", 0.2f);
-            SoundEffects.play("horror_ambiance");
+            // Menu panel
+            JPanel menuPanel = new JPanel();
+            menuPanel.setLayout(null);
+            menuPanel.setBackground(Color.BLACK);
 
-        } catch (Exception e) {
-            System.err.println("Initialization failed: " + e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
-        }
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("🔚 Shutting down: Cleaning up OpenAL");
-            SoundEffects.cleanup();
-        }));
+            JLabel title = new JLabel("Escape Room (Shed)", SwingConstants.CENTER);
+            title.setFont(new Font("Monospaced", Font.BOLD, 42));
+            title.setForeground(Color.WHITE);
+            title.setBounds(0, 120, 1280, 100);
+            menuPanel.add(title);
+
+         // 🎮 Play Button
+            JButton playButton = new JButton("Play");
+            playButton.setBounds(540, 280, 200, 50);
+            playButton.setFont(new Font("Monospaced", Font.BOLD, 24));
+            playButton.setForeground(Color.WHITE);
+            playButton.setBackground(new Color(34, 139, 34)); // Forest green
+            playButton.setFocusPainted(false);
+            playButton.setBorderPainted(false);
+            playButton.setOpaque(true);
+            playButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            menuPanel.add(playButton);
+
+            // ❌ Exit Button
+            JButton exitButton = new JButton("Exit");
+            exitButton.setBounds(540, 350, 200, 50);
+            exitButton.setFont(new Font("Monospaced", Font.BOLD, 24));
+            exitButton.setForeground(Color.WHITE);
+            exitButton.setBackground(new Color(139, 0, 0)); // Dark red
+            exitButton.setFocusPainted(false);
+            exitButton.setBorderPainted(false);
+            exitButton.setOpaque(true);
+            exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            menuPanel.add(exitButton);
+
+
+            frame.add(menuPanel, BorderLayout.CENTER);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+
+            // Play button starts the game
+            playButton.addActionListener(e -> {
+                frame.remove(menuPanel);
+                frame.repaint();
+
+                // Launch game in the same frame
+                try {
+                    initialize3DEnvironmentWithFrame(frame);
+                    BranchGroup scene = createScene();
+                    universe.addBranchGraph(scene);
+                    setupPicking();
+                    startGameLoop();
+
+                    SoundEffects.load("horror_ambiance", true);
+                    SoundEffects.setGain("horror_ambiance", 0.2f);
+                    SoundEffects.play("horror_ambiance");
+
+                } catch (Exception ex) {
+                    System.err.println("Initialization failed: " + ex.getMessage());
+                    ex.printStackTrace();
+                    System.exit(1);
+                }
+
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    System.out.println("🔚 Shutting down: Cleaning up OpenAL");
+                    SoundEffects.cleanup();
+                }));
+            });
+
+            // Exit button quits the game
+            exitButton.addActionListener(e -> System.exit(0));
+        });
     }
+
+
     private static void processRegularDoor() { //door sound locked
         if (doorIsOpen) {
             doorIsOpen = false;
@@ -76,28 +150,52 @@ public class Main {
             SoundEffects.play("door_locked");
         }
     }
+    private static final double DOOR_INTERACTION_DISTANCE = 0.6; // adjust as needed
+
     private static void processEscapeDoor() {
-        // Step 1: Maze puzzle must be won
+        // Step 1: Check if maze is won
         if (!integratedMazePanel.getGameState().player.hasWon()) {
             SoundEffects.load("door_locked", false);
             SoundEffects.play("door_locked");
             return;
         }
 
-        // Step 2: All puzzles must be solved (Maze + Crosses)
+        // Step 2: Check if both puzzles are solved
         if (!PuzzleTracker.allPuzzlesSolved()) {
             SoundEffects.load("door_locked", false);
             SoundEffects.play("door_locked");
             return;
         }
 
-        // Step 3: Wait until door_activated.wav is finished
+        // Step 3: Check if activation sound is finished
         if (!PuzzleTracker.canOpenEscapeDoor()) {
             System.out.println("⏳ Escape door activated, waiting for sound to finish...");
             return;
         }
 
-        // Step 4: Open the door
+        // Step 4: Check player's distance to escape door
+        Transform3D playerTransform = new Transform3D();
+        universe.getViewingPlatform().getViewPlatformTransform().getTransform(playerTransform);
+        Vector3f playerPos = new Vector3f();
+        playerTransform.get(playerPos);
+
+        Transform3D doorTransform = new Transform3D();
+        escapeDoor.getTransform(doorTransform);
+        Vector3f doorPos = new Vector3f();
+        doorTransform.get(doorPos);
+
+        float dx = playerPos.x - doorPos.x;
+        float dy = playerPos.y - doorPos.y;
+        float dz = playerPos.z - doorPos.z;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        if (distance > DOOR_INTERACTION_DISTANCE * DOOR_INTERACTION_DISTANCE) {
+            System.out.printf("🚶 Too far from escape door. Distance = %.3f\n", distance);
+            return; // Don't play locked sound — just ignore interaction
+        }
+
+
+        // Step 5: Actually open the door
         if (!escapeDoorIsOpen) {
             escapeDoorIsOpen = true;
             SoundEffects.load("door_opened", false);
@@ -107,6 +205,16 @@ public class Main {
             System.out.println("🟢 Door already open.");
         }
     }
+
+    private static Point3f getPlayerPosition() {
+        Transform3D t3d = new Transform3D();
+        playerControls.viewTransformGroup.getTransform(t3d);
+        Vector3f v = new Vector3f();
+        t3d.get(v);
+        return new Point3f(v.x, v.y, v.z);
+    }
+
+
 
 
 
@@ -257,15 +365,12 @@ public class Main {
         return sphereGroup;
     }
     
-    private static void initialize3DEnvironment() throws AWTException {
+    private static void initialize3DEnvironmentWithFrame(JFrame frame) throws AWTException {
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
         canvas = new GameCanvas();
         canvas.setPreferredSize(new Dimension(1280, 720));
-        
-        JFrame frame = new JFrame("3D Escape Room with Cross Puzzle");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
-        
+
         if (integratedMazePanel == null) {
             MazeGameState state = new MazeGameState();
             integratedMazePanel = new MazePanel(state);
@@ -273,13 +378,13 @@ public class Main {
         }
         frame.setGlassPane(integratedMazePanel);
         integratedMazePanel.setVisible(true);
-        
+
         frame.pack();
         frame.setVisible(true);
-        
+
         universe = new SimpleUniverse(canvas);
         configureViewingPlatform();
-        
+
         playerControls = new PlayerControls(
             universe.getViewingPlatform().getViewPlatformTransform(),
             canvas,
@@ -287,9 +392,10 @@ public class Main {
             MOVEMENT_SPEED,
             VERTICAL_SPEED
         );
-                
+
         customizeTextures();
     }
+
 
     private static class PlayerControls implements KeyListener, MouseMotionListener {
         private final TransformGroup viewTransformGroup;
@@ -500,7 +606,7 @@ public class Main {
             door.setUserData("Door");
             scene.addChild(door);
             
-            TransformGroup escapeDoor = creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.40, -0.215, 0.49), 0.55);
+            escapeDoor = creator.createObject("Escape_door", new AxisAngle4d(0, 1, 0, 0), new Vector3d(-0.40, -0.215, 0.49), 0.55);
             escapeDoor.setUserData("Escape_door");
             scene.addChild(escapeDoor);
 
