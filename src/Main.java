@@ -37,6 +37,8 @@ public class Main {
     private static final float VERTICAL_SPEED = 0.04f;
     
     private static PlayerControls playerControls;
+    private CollisionPreventionBehavior collisionBehavior;
+    private static TransformGroup playerTG;
     private static boolean mouseCaptured = true;
     private static GameCanvas canvas;
     private static SimpleUniverse universe;
@@ -532,7 +534,15 @@ public class Main {
     
     private static BranchGroup createScene() {
         BranchGroup scene = new BranchGroup();
+        playerTG = new TransformGroup();
+        playerTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         scene.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
+        
+        Transform3D startPosition = new Transform3D();
+        startPosition.setTranslation(new Vector3f(0.45f, -0.2f, 0.3f)); // Start inside room
+        playerTG.setTransform(startPosition);
+        scene.addChild(playerTG);
+
         
         try {
             CreateObjects creator = new CreateObjects();
