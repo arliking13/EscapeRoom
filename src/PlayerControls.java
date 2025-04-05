@@ -8,7 +8,11 @@ import java.awt.Point;
 public class PlayerControls implements KeyListener, MouseMotionListener {
     private TransformGroup viewTransformGroup;
     private Transform3D transform = new Transform3D();
-    private Vector3f position = new Vector3f(0.0f, -5f, 5.0f);
+ // Set the initial spawn point to a walkable (white) area
+    private final Vector3f position = new Vector3f(-1.0f, 0.3f, -1.0f);
+
+
+
     private float angleY = 0.0f;   // Yaw (left/right rotation)
     private float angleX = 0.0f;   // Pitch (up/down rotation)
     private float moveSpeed = 0.2f;

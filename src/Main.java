@@ -56,6 +56,10 @@ public class Main {
     private static boolean escapeDoorIsOpen = false;
     private static TransformGroup escapeDoor;
 
+    private static boolean winTriggered = false;
+    private static final double CHECK_WIN_DISTANCE = 0.3;  // Adjust threshold if needed
+
+
 
     
     public static void main(String[] args) {
@@ -191,20 +195,22 @@ public class Main {
 
         if (distance > DOOR_INTERACTION_DISTANCE * DOOR_INTERACTION_DISTANCE) {
             System.out.printf("🚶 Too far from escape door. Distance = %.3f\n", distance);
-            return; // Don't play locked sound — just ignore interaction
+            return; // Ignore interaction silently
         }
 
-
-        // Step 5: Actually open the door
+        // Step 5: Actually open the door (if not already open)
         if (!escapeDoorIsOpen) {
             escapeDoorIsOpen = true;
             SoundEffects.load("door_opened", false);
             SoundEffects.play("door_opened");
             System.out.println("🚪 Escape door opened!");
         } else {
-            System.out.println("🟢 Door already open.");
+            System.out.println("🏁 Player escaped! Showing win screen...");
+            endGame(true); // 🎉 Show win screen after walking close to open door
         }
     }
+    
+
 
     private static Point3f getPlayerPosition() {
         Transform3D t3d = new Transform3D();
@@ -737,6 +743,27 @@ public class Main {
                 try {
                     playerControls.update();
                     canvas.postRender();
+
+                    // ✅ WIN CHECK: If escape door is open, and player gets close
+                    if (escapeDoorIsOpen && !winTriggered) {
+                        Point3f player = getPlayerPosition();
+                        Transform3D t = new Transform3D();
+                        escapeDoor.getTransform(t);
+                        Vector3f doorVec = new Vector3f();
+                        t.get(doorVec);
+
+                        float dx = player.x - doorVec.x;
+                        float dy = player.y - doorVec.y;
+                        float dz = player.z - doorVec.z;
+                        float dist = (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                        if (dist < CHECK_WIN_DISTANCE) {
+                            winTriggered = true;
+                            System.out.println("🎉 Player walked through escape door! Triggering win screen.");
+                            endGame(true);
+                        }
+                    }
+
                     Thread.sleep(16);
                 } catch (Exception e) {
                     System.err.println("Game loop error: " + e.getMessage());
@@ -744,6 +771,7 @@ public class Main {
             }
         }).start();
     }
+
     
     public static boolean isMazeActive() {
         return mazeActive;
