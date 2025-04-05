@@ -117,7 +117,7 @@ public class MazePanel extends JPanel implements KeyListener {
             g.setColor(Color.WHITE);
             g.drawString("You found a door...", TILE_SIZE * 5, TILE_SIZE * 8);
             g.drawString("Something feels off.", TILE_SIZE * 5, TILE_SIZE * 9);
-            g.drawString("Close this window if you dare.", TILE_SIZE * 5, TILE_SIZE * 10);
+            g.drawString("Now leave, if you dare.", TILE_SIZE * 5, TILE_SIZE * 10);
         }
 
         // Draw small status box in bottom-left (with health, key, etc.)
@@ -134,7 +134,7 @@ public class MazePanel extends JPanel implements KeyListener {
         // Display instructions or comments in the status bar
         g.setColor(Color.BLUE);
 
-        String msg = "Use ← ↑ ↓ → to move. To win, you need to die.";
+        String msg = "Double-click. Arrow keys. Die to win.";
         int msgWidth = fm.stringWidth(msg);
         int x = (getWidth() - msgWidth) / 2;
         int y = getHeight() - 10;

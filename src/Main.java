@@ -688,23 +688,52 @@ public class Main {
     
     public static void endGame(boolean escaped) {
         if (escaped) {
+            // ✅ Make sure the maze disappears
+            integratedMazePanel.setVisible(false);
+            mazeActive = false;
+
+            // ✅ Play sound (optional)
+            SoundEffects.play("door_opened");
+
+            // ✅ Show win screen
             canvas.setVisible(true);
             showWinScreen();
-            SoundEffects.play("Door_Open");
         }
     }
 
+
     private static void showWinScreen() {
         SwingUtilities.invokeLater(() -> {
-            Container container = new Container();
-            container.removeAll();
-            
-            Frame frame = new Frame();
-            frame.add(new WinScreen(null));
-            frame.validate();
-            frame.repaint();
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(canvas);
+
+            JPanel winPanel = new JPanel();
+            winPanel.setLayout(null);
+            winPanel.setBackground(Color.BLACK);
+
+            JLabel winLabel = new JLabel("You Escaped!", SwingConstants.CENTER);
+            winLabel.setFont(new Font("Monospaced", Font.BOLD, 42));
+            winLabel.setForeground(new Color(0, 255, 128));
+            winLabel.setBounds(0, 200, 1280, 100);
+            winPanel.add(winLabel);
+
+            JButton exitButton = new JButton("Exit Game");
+            exitButton.setFont(new Font("Monospaced", Font.BOLD, 24));
+            exitButton.setBackground(new Color(139, 0, 0));
+            exitButton.setForeground(Color.WHITE);
+            exitButton.setBounds(540, 350, 200, 50);
+            exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            exitButton.setFocusPainted(false);
+            winPanel.add(exitButton);
+
+            exitButton.addActionListener(e -> System.exit(0));
+
+            topFrame.getContentPane().removeAll();
+            topFrame.getContentPane().add(winPanel, BorderLayout.CENTER);
+            topFrame.revalidate();
+            topFrame.repaint();
         });
     }
+
     
     private static BranchGroup createErrorScene() {
         BranchGroup errorScene = new BranchGroup();
