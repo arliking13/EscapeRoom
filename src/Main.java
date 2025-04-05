@@ -154,8 +154,6 @@ public class Main {
             SoundEffects.play("door_locked");
         }
     }
-    private static final double DOOR_INTERACTION_DISTANCE = 0.6; // adjust as needed
-
     private static void processEscapeDoor() {
         // Step 1: Check if maze is won
         if (!integratedMazePanel.getGameState().player.hasWon()) {
@@ -171,44 +169,19 @@ public class Main {
             return;
         }
 
-        // Step 3: Check if activation sound is finished
-        if (!PuzzleTracker.canOpenEscapeDoor()) {
-            System.out.println("⏳ Escape door activated, waiting for sound to finish...");
-            return;
-        }
-
-        // Step 4: Check player's distance to escape door
-        Transform3D playerTransform = new Transform3D();
-        universe.getViewingPlatform().getViewPlatformTransform().getTransform(playerTransform);
-        Vector3f playerPos = new Vector3f();
-        playerTransform.get(playerPos);
-
-        Transform3D doorTransform = new Transform3D();
-        escapeDoor.getTransform(doorTransform);
-        Vector3f doorPos = new Vector3f();
-        doorTransform.get(doorPos);
-
-        float dx = playerPos.x - doorPos.x;
-        float dy = playerPos.y - doorPos.y;
-        float dz = playerPos.z - doorPos.z;
-        float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-        if (distance > DOOR_INTERACTION_DISTANCE * DOOR_INTERACTION_DISTANCE) {
-            System.out.printf("🚶 Too far from escape door. Distance = %.3f\n", distance);
-            return; // Ignore interaction silently
-        }
-
-        // Step 5: Actually open the door (if not already open)
+        // ✅ Step 3: Play open sound (if not already played)
         if (!escapeDoorIsOpen) {
             escapeDoorIsOpen = true;
             SoundEffects.load("door_opened", false);
             SoundEffects.play("door_opened");
             System.out.println("🚪 Escape door opened!");
-        } else {
-            System.out.println("🏁 Player escaped! Showing win screen...");
-            endGame(true); // 🎉 Show win screen after walking close to open door
         }
+
+        // ✅ Step 4: Immediately show win screen
+        System.out.println("🏁 Player escaped! Triggering win screen...");
+        endGame(true);
     }
+
     
 
 
@@ -688,51 +661,59 @@ public class Main {
     
     public static void endGame(boolean escaped) {
         if (escaped) {
-            // ✅ Make sure the maze disappears
+            System.out.println("⚠ Showing win screen...");
+
+            // Hide the maze and kill the glass pane
             integratedMazePanel.setVisible(false);
             mazeActive = false;
 
-            // ✅ Play sound (optional)
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(canvas);
+            JPanel transparentGlass = new JPanel();
+            transparentGlass.setOpaque(false); // ⬅️ Make it invisible, not white
+            topFrame.setGlassPane(transparentGlass);
+
             SoundEffects.play("door_opened");
 
-            // ✅ Show win screen
-            canvas.setVisible(true);
-            showWinScreen();
+            SwingUtilities.invokeLater(() -> {
+                topFrame.getContentPane().removeAll();
+
+                JPanel winPanel = new JPanel();
+                winPanel.setLayout(null);
+                winPanel.setBackground(Color.BLACK); // ⬅️ Real background, not white
+
+                JLabel winLabel = new JLabel("You Escaped!", SwingConstants.CENTER);
+                winLabel.setFont(new Font("Monospaced", Font.BOLD, 42));
+                winLabel.setForeground(new Color(0, 255, 128));
+                winLabel.setBounds(0, 120, 1280, 100);
+                winPanel.add(winLabel);
+
+                JButton exitButton = new JButton("Exit Game");
+                exitButton.setBounds(540, 280, 200, 50);
+                exitButton.setFont(new Font("Monospaced", Font.BOLD, 24));
+                exitButton.setForeground(Color.WHITE);
+                exitButton.setBackground(new Color(139, 0, 0));
+                exitButton.setFocusPainted(false);
+                exitButton.setBorderPainted(false);
+                exitButton.setOpaque(true);
+                exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                exitButton.addActionListener(e -> System.exit(0));
+                winPanel.add(exitButton);
+
+                topFrame.getContentPane().add(winPanel, BorderLayout.CENTER);
+                topFrame.revalidate();
+                topFrame.repaint();
+
+                System.out.println("✅ Win screen displayed (correct background + text).");
+            });
         }
     }
 
 
-    private static void showWinScreen() {
-        SwingUtilities.invokeLater(() -> {
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(canvas);
 
-            JPanel winPanel = new JPanel();
-            winPanel.setLayout(null);
-            winPanel.setBackground(Color.BLACK);
 
-            JLabel winLabel = new JLabel("You Escaped!", SwingConstants.CENTER);
-            winLabel.setFont(new Font("Monospaced", Font.BOLD, 42));
-            winLabel.setForeground(new Color(0, 255, 128));
-            winLabel.setBounds(0, 200, 1280, 100);
-            winPanel.add(winLabel);
 
-            JButton exitButton = new JButton("Exit Game");
-            exitButton.setFont(new Font("Monospaced", Font.BOLD, 24));
-            exitButton.setBackground(new Color(139, 0, 0));
-            exitButton.setForeground(Color.WHITE);
-            exitButton.setBounds(540, 350, 200, 50);
-            exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            exitButton.setFocusPainted(false);
-            winPanel.add(exitButton);
 
-            exitButton.addActionListener(e -> System.exit(0));
-
-            topFrame.getContentPane().removeAll();
-            topFrame.getContentPane().add(winPanel, BorderLayout.CENTER);
-            topFrame.revalidate();
-            topFrame.repaint();
-        });
-    }
+    
 
     
     private static BranchGroup createErrorScene() {
@@ -773,25 +754,7 @@ public class Main {
                     playerControls.update();
                     canvas.postRender();
 
-                    // ✅ WIN CHECK: If escape door is open, and player gets close
-                    if (escapeDoorIsOpen && !winTriggered) {
-                        Point3f player = getPlayerPosition();
-                        Transform3D t = new Transform3D();
-                        escapeDoor.getTransform(t);
-                        Vector3f doorVec = new Vector3f();
-                        t.get(doorVec);
-
-                        float dx = player.x - doorVec.x;
-                        float dy = player.y - doorVec.y;
-                        float dz = player.z - doorVec.z;
-                        float dist = (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-                        if (dist < CHECK_WIN_DISTANCE) {
-                            winTriggered = true;
-                            System.out.println("🎉 Player walked through escape door! Triggering win screen.");
-                            endGame(true);
-                        }
-                    }
+                    
 
                     Thread.sleep(16);
                 } catch (Exception e) {
